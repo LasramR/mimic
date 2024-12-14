@@ -2,8 +2,9 @@ from os import sep
 from os.path import abspath, exists
 
 from ..actions.git import git_action
+from ..actions.template import inject_project
 from ..actions.hook import hook_action
-from ..utils import git, fs, config
+from ..utils import git, fs, config, input
 from ..options import OrcaOptions
 
 def clone(options : OrcaOptions) -> bool :
@@ -34,7 +35,7 @@ def clone(options : OrcaOptions) -> bool :
     return True
 
   orca_config = config.load_orca_config(orcarc_file_path)
-  config.remove_orca_config(orcarc_file_path)
+  fs.remove_ignore(orcarc_file_path)
 
   if orca_config == None:
     raise Exception(f"clone: cloud not apply post clone instruction because of broken orca config (see {orcarc_file_path})")
@@ -48,6 +49,13 @@ def clone(options : OrcaOptions) -> bool :
   for h in pre_template_injection_hooks:
     options["logger"].info(f"hook: '{h.name}'")
     hook_action(project_dir, h, options["command"]["unsafe_mode"])
+
+  variables = {}
+  for v in orca_config.template.variables.keys():
+    variables[orca_config.template.variables[v].name] = input.get_user_variable_input(orca_config.template.variables[v])
+
+  options["logger"].info(f"generating injected project {project_dir}")
+  inject_project(project_dir, variables)
 
   post_template_injection_hooks = orca_config.get_post_template_injection_hooks()
   options["logger"].info(f"running 'post_template_injection' hooks ({len(post_template_injection_hooks)})")

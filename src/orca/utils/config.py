@@ -14,9 +14,11 @@ class OrcaGitConfig:
     self.enabled = validated_raw.get("enabled", False)
     self.main_branch = validated_raw.get("main_branch", "main")
 
+OrcaVariableTypeType = Literal["string", "number", "boolean"]
+
 class OrcaVariable:
   name: str
-  type: Literal["string", "number", "boolean"]
+  type: OrcaVariableTypeType
   required: bool = True
   description: Union[str, None] = None
 
@@ -108,10 +110,3 @@ def load_orca_config(orcarc_file_path : str) -> Union[OrcaConfig, None]:
       return OrcaConfig(orcarc_data)
   except:
     return None
-  
-def remove_orca_config(orcarc_file_path : str) -> None:
-  try:
-      remove(orcarc_file_path)
-  except OSError:
-      pass
-
