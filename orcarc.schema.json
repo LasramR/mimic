@@ -1,0 +1,73 @@
+{  
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/LasramR/orca/orcarc.schema.json",
+  "title": "orcarc",
+  "description": "Configuration file for Orca CLI",
+  "type": "object",
+
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "git": {
+      "description": "Git integration",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "main_branch": {
+          "description": "The main branch of the newly initialize git project",
+          "type": "string"
+        }
+      },
+      "required": ["enabled"],
+      "additionalProperties": false
+    },
+    "template": {
+      "description": "Template things",
+      "type": "object",
+      "properties": {
+        "variables": {
+          "description": "",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "description": { 
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["string", "number", "boolean"]
+              },
+              "required": { 
+                "type": "boolean"
+              }
+            },
+          "required": ["type"]
+          }
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "post_install": {
+      "description": "Post installation instructions to trigger after template injection",
+      "type": "object",
+      "properties": {
+        "steps": {
+          "description": "",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["steps"],
+      "additionalProperties": false
+    }
+  },
+  "required": [],
+  "additionalProperties": false
+}
