@@ -1,8 +1,10 @@
 from os import sep
 from os.path import abspath, exists
 
-from ..options import OrcaOptions
+from ..actions.git import git_action
+from ..actions.hook import hook_action
 from ..utils import git, fs, config
+from ..options import OrcaOptions
 
 def clone(options : OrcaOptions) -> bool :
   if options['command']["name"] != "clone":
@@ -10,8 +12,9 @@ def clone(options : OrcaOptions) -> bool :
   
   repository_url = options["command"]["repository_url"]
 
+  options["logger"].info(f"resolving repository {repository_url}")
   if not git.repository_exists(repository_url):
-    raise Exception(f'clone: could not find repository {repository_url}. Are you sure that you have access to the repository ?')
+    raise Exception(f'clone: could not resolve repository {repository_url}. Are you sure that you have access to the repository ?')
 
   project_dir = options["command"].get("out_dir") or abspath(git.repository_name(repository_url))
 
@@ -28,11 +31,27 @@ def clone(options : OrcaOptions) -> bool :
 
   if orcarc_file_path == None:
     options["logger"].warn(f"no orcarc(.json)? file has been found: no more work to do. exiting")
-    return False
+    return True
 
   orca_config = config.load_orca_config(orcarc_file_path)
+  config.remove_orca_config(orcarc_file_path)
 
   if orca_config == None:
     raise Exception(f"clone: cloud not apply post clone instruction because of broken orca config (see {orcarc_file_path})")
+  
+  if orca_config.git.enabled:
+    options["logger"].info("configuring git")
+  git_action(project_dir, orca_config.git)
 
+  pre_template_injection_hooks = orca_config.get_pre_template_injection_hooks()
+  options["logger"].info(f"running 'pre_template_injection' hooks ({len(pre_template_injection_hooks)})")
+  for h in pre_template_injection_hooks:
+    options["logger"].info(f"hook: '{h.name}'")
+    hook_action(project_dir, h, options["command"]["unsafe_mode"])
+
+  post_template_injection_hooks = orca_config.get_post_template_injection_hooks()
+  options["logger"].info(f"running 'post_template_injection' hooks ({len(post_template_injection_hooks)})")
+  for h in post_template_injection_hooks:
+    options["logger"].info(f"hook: '{h.name or '<unnamed hook>'}'")
+    hook_action(project_dir, h, options["command"]["unsafe_mode"])
   return True

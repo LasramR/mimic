@@ -52,19 +52,33 @@
       "required": [],
       "additionalProperties": false
     },
-    "post_install": {
+    "hooks": {
       "description": "Post installation instructions to trigger after template injection",
-      "type": "object",
-      "properties": {
-        "steps": {
-          "description": "",
-          "type": "array",
-          "items": {
+      "type": "array",
+      "items": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "",
             "type": "string"
+          },
+          "when": {
+            "description": "",
+            "type": "string",
+            "enum": ["pre_template_injection", "post_template_injection"]
+          },
+          "steps": {
+            "description": "",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
-        }
+        },
+        "required": ["when", "steps"],
+        "additionalProperties": false
       },
-      "required": ["steps"],
       "additionalProperties": false
     }
   },
