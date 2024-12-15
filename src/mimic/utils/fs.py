@@ -14,13 +14,16 @@ def get_file_with_extensions(file_path : str, extensions : List[str]) -> List[st
     variants.append(f"{file_path}{ext}")
   return variants
 
-mimic_template_file_ext = ".ot"
+mimic_template_file_exts = [".mimict", ".mt"]
 
-def get_file_from_template_file(file_path : str, template_file_ext : str = mimic_template_file_ext) -> str :
-  return file_path.removesuffix(template_file_ext)
+def get_file_from_template_file(file_path : str, template_file_exts : List[str] = mimic_template_file_exts) -> str :
+    for e in template_file_exts:
+        if file_path.endswith(e):
+            return file_path.removesuffix(e)
+    return file_path
 
-def is_template_file(file_path : str, template_file_ext : str = mimic_template_file_ext) -> bool :
-  return file_path.endswith(template_file_ext)
+def is_template_file(file_path : str, template_file_exts : List[str] = mimic_template_file_exts) -> bool :
+  return any(map(lambda e : file_path.endswith(e), template_file_exts))
 
 def remove_ignore(file_path : str) -> None :
   try:

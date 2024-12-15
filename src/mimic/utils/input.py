@@ -32,22 +32,41 @@ def check_valid_variable_input_type(variable : MimicVariable, user_input : str) 
       return None
   return None
 
-def _get_variable_input_prompt(variable : MimicVariable, show_constraints : bool) -> str :
-  description = "" if variable.description == None else f"{variable.description}\n"
+def _get_variable_input_prompt(variable : MimicVariable) -> str :
+  description = "" if variable.description == None else f", {variable.description}"
   
   constraints = ""
-  
-  if show_constraints and variable.type == "regex":
-    constraints = f'must match "{variable.item}"\n'
-  
+    
   if variable.type == "choice":
-    constraints = f"must be one of (specify index):\n"
+    constraints = f"Please select one of the following (specify index)\n"
     for i in range(len(variable.item)):
-      constraints += f"[{i}] - {variable.item[i]}\n"
+      constraints += f"{i} - {variable.item[i]}\n"
 
-  required = "(skip empty) " if not variable.required else ""
+  required = "<skip empty> " if not variable.required else ""
 
-  return f"{description}{constraints}{variable.name}: {required}"
+  return f"{constraints}{variable.name}{description}: {required}"
+
+def _get_variable_invalid_input_prompt(variable : MimicVariable):
+  invalid_input_prompt = f"{ColorTable['RED']}invalid value, please retry"
+  
+  if variable.type == "number":
+    invalid_input_prompt += f' (must be a number)'
+
+  if variable.type == "string":
+    invalid_input_prompt += f' (must be non empty)'
+
+  if variable.type == "boolean":
+    invalid_input_prompt += f' (can be either "true" or "false")'
+
+  if variable.type == "regex":
+    invalid_input_prompt += f' (must match {variable.item})'
+
+  if variable.type == "choice":
+    invalid_input_prompt += f' (select an option between 0 and {len(variable.item) - 1})'
+
+  invalid_input_prompt += ColorReset
+
+  return invalid_input_prompt
 
 def _clean_input_prompt(input_prompt : str, raw_user_input : str) -> None :
   lines = input_prompt.split("\n")
@@ -67,9 +86,9 @@ def _clean_input_invalid_prompt(invalid_input_prompt : str) -> None :
   stdout.write("\r")
   stdout.write(' ' * len(invalid_input_prompt))
 
-def get_user_variable_input(variable : MimicVariable, show_constraints : bool = True) -> Union[Any, None] :
-  input_prompt = _get_variable_input_prompt(variable, show_constraints)
-  invalid_input_prompt = f"{ColorTable['RED']}invalid value, please retry{ColorReset}"
+def get_user_variable_input(variable : MimicVariable) -> Union[Any, None] :
+  input_prompt = _get_variable_input_prompt(variable)
+  invalid_input_prompt = _get_variable_invalid_input_prompt(variable)
 
   retry = True
   hasRetry = False
@@ -100,4 +119,4 @@ def get_user_str_input(input_name : str, input_description : Union[str, None] = 
   return get_user_variable_input(MimicVariable.NewFrom(input_name, "string", required, input_description, None))
 
 def get_user_confirmation(confirmation_prompt : str):
- return get_user_variable_input(MimicVariable.NewFrom(confirmation_prompt, "regex", required=True, item=r"^[Yy]|[Nn]$"), show_constraints=False)
+ return get_user_variable_input(MimicVariable.NewFrom(confirmation_prompt, "regex", required=True, item=r"^[Yy]|[Nn]$"))
