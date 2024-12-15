@@ -27,4 +27,3 @@ def remove_ignore(file_path : str) -> None :
       remove(file_path)
   except OSError:
       pass
-

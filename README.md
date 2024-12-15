@@ -10,3 +10,5 @@ TODO:
 > optionnal : conditionnal template rendering
 
 > orca preview
+
+> hook skip_error, skip_user_ignore

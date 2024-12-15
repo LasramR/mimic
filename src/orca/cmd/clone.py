@@ -4,7 +4,7 @@ from os.path import abspath, exists
 from ..actions.git import git_action
 from ..actions.template import inject_project
 from ..actions.hook import hook_action
-from ..utils import git, fs, config, input, alias_wallet
+from ..utils import git, cloning, fs, config, input, alias_wallet
 from ..options import OrcaOptions
 
 def clone(options : OrcaOptions) -> bool :
@@ -17,9 +17,8 @@ def clone(options : OrcaOptions) -> bool :
   if alias != repository_url:
     options["logger"].info(f"{alias} has been resolved to {repository_url}")
 
-
   options["logger"].info(f"checking access to repository {repository_url}")
-  if not git.repository_exists(repository_url):
+  if not cloning.check_access_to_project(repository_url):
     raise Exception(f'could not resolve repository {repository_url}. Are you sure that you have access to the repository ?')
 
   options["logger"].success(f"ok")
@@ -30,11 +29,12 @@ def clone(options : OrcaOptions) -> bool :
     raise Exception(f"out_dir {project_dir} already exist and cloning into it will fail. cancelling")
 
   options["logger"].info(f"cloning {repository_url} in {project_dir}")
-  if not git.clone_repository(repository_url, project_dir):
+  if not cloning.clone_project(repository_url, project_dir):
     raise Exception(f'could not clone repository at "{project_dir}"')
-  git.remove_git_folder(project_dir)
+
   options["logger"].success(f"{repository_url} cloned")
-  
+
+
   orcarc_file_path = fs.resolve_existing_path(fs.get_file_with_extensions(f"{project_dir}{sep}.orcarc", ["", ".json", ".jsonc"]))
 
   if orcarc_file_path == None:
