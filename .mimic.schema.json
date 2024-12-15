@@ -1,8 +1,8 @@
 {  
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/LasramR/orca/orcarc.schema.json",
-  "title": "orcarc",
-  "description": "Configuration file for Orca CLI",
+  "$id": "https://github.com/LasramR/mimic/.mimic.schema.json",
+  "title": ".mimic",
+  "description": "Configuration file for Mimic CLI",
   "type": "object",
 
   "properties": {

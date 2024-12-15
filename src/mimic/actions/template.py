@@ -6,7 +6,7 @@ from threading import Thread, Lock
 from typing import Dict, Any, Set, List
 
 from ..utils.fs import get_file_from_template_file, remove_ignore, is_template_file
-from ..utils.config import OrcaVariableReference, OrcaPreview, OrcaFileContentPreview
+from ..utils.config import MimicVariableReference, MimicPreview, MimicFileContentPreview
 
 extract_variable_name_regex = r"{{\s*(?P<variable_name>\w+)\s*}}"
 def inject_variable(template: str, variables : Dict[str, Any]) -> str:
@@ -69,15 +69,15 @@ def inject_project(project_dir : str, variables) -> bool :
 def _get_variables_from(template : str) -> Set[str] :
   return {match.group("variable_name") for match in finditer(extract_variable_name_regex, template)}
 
-def _get_variables_from_file(source_file_path : str, variables : Set[OrcaVariableReference], variables_lock : Lock) -> None :
+def _get_variables_from_file(source_file_path : str, variables : Set[MimicVariableReference], variables_lock : Lock) -> None :
   try:
-    source_variables : Set[OrcaVariableReference] = set()
+    source_variables : Set[MimicVariableReference] = set()
     with open(source_file_path, "r") as fd:
       for v in _get_variables_from("".join(fd.readlines())):
-        source_variables.add(OrcaVariableReference(v, source_file_path))
+        source_variables.add(MimicVariableReference(v, source_file_path))
     
     for v in _get_variables_from(basename(source_file_path)):
-      source_variables.add(OrcaVariableReference(v, source_file_path, is_file=True))
+      source_variables.add(MimicVariableReference(v, source_file_path, is_file=True))
     
     with variables_lock:
       for v in source_variables:
@@ -86,15 +86,15 @@ def _get_variables_from_file(source_file_path : str, variables : Set[OrcaVariabl
   except Exception as e:
     pass
 
-def get_variables_from_project(project_dir : str) -> Set[OrcaVariableReference]:
-  variables : Set[OrcaVariableReference] = set()
+def get_variables_from_project(project_dir : str) -> Set[MimicVariableReference]:
+  variables : Set[MimicVariableReference] = set()
   template_file_paths = []
 
   for root, dirnames, filenames in walk(project_dir):
     for dirname in dirnames:
       if is_template_file(dirname):
         for v in _get_variables_from(join(root, dirname)):
-          variables.add(OrcaVariableReference(v, join(root, dirname), is_directory=True))
+          variables.add(MimicVariableReference(v, join(root, dirname), is_directory=True))
     for filename in filenames:
       if is_template_file(filename):
         template_file_paths.append(join(root, filename))
@@ -110,16 +110,16 @@ def get_variables_from_project(project_dir : str) -> Set[OrcaVariableReference]:
   
   return variables
 
-def _preview_file(source_file_path : str, variables : Dict[str, Any], project_preview : OrcaPreview, project_preview_lock : Lock):
+def _preview_file(source_file_path : str, variables : Dict[str, Any], project_preview : MimicPreview, project_preview_lock : Lock):
   try:
-    changes : List[OrcaFileContentPreview] = []
+    changes : List[MimicFileContentPreview] = []
     with open(source_file_path, "r") as fd:
       lineno = 1
       for line in fd:
         striped_line = line.strip()
         parsed_line = inject_variable(striped_line, variables).strip()
         if striped_line != parsed_line:
-          changes.append(OrcaFileContentPreview(striped_line, parsed_line, lineno))
+          changes.append(MimicFileContentPreview(striped_line, parsed_line, lineno))
         lineno += 1
 
     parsed_file_path = get_file_from_template_file(inject_variable(source_file_path, variables))
@@ -131,8 +131,8 @@ def _preview_file(source_file_path : str, variables : Dict[str, Any], project_pr
   except:
     pass
 
-def preview_project(project_dir : str, variables : Dict[str, Any]) -> OrcaPreview:
-  project_preview = OrcaPreview()
+def preview_project(project_dir : str, variables : Dict[str, Any]) -> MimicPreview:
+  project_preview = MimicPreview()
   template_file_paths = []
 
   for root, dirnames, filenames in walk(project_dir):

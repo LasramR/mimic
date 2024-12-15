@@ -4,121 +4,121 @@ from typing import TypedDict, Literal, Union, Any
 
 from .utils.logger import Logger, LoggerOptions
 
-class OrcaCommandOptions (TypedDict):
+class MimicCommandOptions (TypedDict):
   name: str
 
-class OrcaCloneOptions (OrcaCommandOptions) :
+class MimicCloneOptions (MimicCommandOptions) :
   name: Literal["clone"]
   repository_uri: str
   out_dir: str
   unsafe_mode: bool
   alias_wallet_file_path: str
 
-def NewOrcaCloneOptions(base_clone_options : OrcaCloneOptions) -> OrcaCloneOptions :
+def NewMimicCloneOptions(base_clone_options : MimicCloneOptions) -> MimicCloneOptions :
   return {
     "name": "clone",
     "repository_uri": base_clone_options["repository_uri"],
     "out_dir": abspath(base_clone_options["out_dir"]) if not base_clone_options.get("out_dir") is None else None,
     "unsafe_mode": base_clone_options.get("unsafe_mode", False),
-    "alias_wallet_file_path": abspath(base_clone_options["alias_wallet_file_path"]) if not base_clone_options.get("alias_wallet_file_path") is None else abspath(join(__file__, "..", "..", "..", ".aliases"))
+    "alias_wallet_file_path": abspath(base_clone_options["alias_wallet_file_path"]) if not base_clone_options.get("alias_wallet_file_path") is None else abspath(join(__file__, "..", "..", "..", "aliases.mimic"))
 
    }
 
-class OrcaLintOptions (OrcaCommandOptions) :
+class MimicLintOptions (MimicCommandOptions) :
   name: Literal["lint"]
   project_dir: str
 
-def NewOrcaLintOptions(base_lint_options : OrcaLintOptions) -> OrcaLintOptions :
+def NewMimicLintOptions(base_lint_options : MimicLintOptions) -> MimicLintOptions :
   return {
     "name": "lint",
     "project_dir": abspath(base_lint_options["project_dir"]) if not base_lint_options.get("project_dir") is None else getcwd()
    }
 
-class OrcaAliasAction (TypedDict) :
+class MimicAliasAction (TypedDict) :
   name: str
 
-class OrcaAliasAddAction (OrcaAliasAction) :
+class MimicAliasAddAction (MimicAliasAction) :
   name: Literal["add"]
   alias: str
   repository_uri: str
 
-class OrcaAliasRmAction (OrcaAliasAction) :
+class MimicAliasRmAction (MimicAliasAction) :
   name: Literal["rm"]
   alias: str
 
-class OrcaAliasListAction (OrcaAliasAction) :
+class MimicAliasListAction (MimicAliasAction) :
   name: Literal["list"]
   
-class OrcaAliasInitAction (OrcaAliasAction) :
+class MimicAliasInitAction (MimicAliasAction) :
   name: Literal["init"]
 
-def NewOrcaAliasAction(name : str, validated_args : Any) -> OrcaAliasAction :
+def NewMimicAliasAction(name : str, validated_args : Any) -> MimicAliasAction :
   match name:
     case "add":
-      return OrcaAliasAddAction({
+      return MimicAliasAddAction({
         "name": "add",
         "alias": validated_args.alias,
         "repository_uri": validated_args.repository_uri
       })
     case "rm":
-      return OrcaAliasRmAction({
+      return MimicAliasRmAction({
         "name": "rm",
         "alias": validated_args.alias
       })
     case "list":
-      return OrcaAliasListAction({
+      return MimicAliasListAction({
         "name": "list"
       })
     case "init":
-      return OrcaAliasInitAction({
+      return MimicAliasInitAction({
         "name": "init"
       })
     case _:
       raise Exception(f"alias: unknown action '{name}'") 
 
 
-class OrcaAliasOptions (OrcaCommandOptions) :
+class MimicAliasOptions (MimicCommandOptions) :
   name: Literal["alias"]
-  action: Union[OrcaAliasAddAction, OrcaAliasRmAction, OrcaAliasListAction, OrcaAliasInitAction]
+  action: Union[MimicAliasAddAction, MimicAliasRmAction, MimicAliasListAction, MimicAliasInitAction]
   alias_wallet_file_path: Union[str, None]
 
-def NewOrcaAliasOptions(base_alias_options : OrcaAliasOptions) -> OrcaAliasOptions :
+def NewMimicAliasOptions(base_alias_options : MimicAliasOptions) -> MimicAliasOptions :
   return {
     "name": "alias",
     "action": base_alias_options["action"],
-    "alias_wallet_file_path": abspath(base_alias_options["alias_wallet_file_path"]) if not base_alias_options.get("alias_wallet_file_path") is None else abspath(join(__file__, "..", "..", "..", ".aliases"))
+    "alias_wallet_file_path": abspath(base_alias_options["alias_wallet_file_path"]) if not base_alias_options.get("alias_wallet_file_path") is None else abspath(join(__file__, "..", "..", "..", "aliases.mimic"))
   }
 
-class OrcaInitOptions (OrcaCommandOptions):
+class MimicInitOptions (MimicCommandOptions):
   name: Literal["init"]
   project_dir: str
 
-def NewOrcaInitOptions(base_init_options : OrcaInitOptions) -> OrcaInitOptions :
+def NewMimicInitOptions(base_init_options : MimicInitOptions) -> MimicInitOptions :
   return {
     "name": "init",
     "project_dir": abspath(base_init_options["project_dir"]) if not base_init_options.get("project_dir") is None else getcwd()
    }
 
-class OrcaPreviewOptions (OrcaCommandOptions):
+class MimicPreviewOptions (MimicCommandOptions):
   name: Literal["preview"]
   project_dir : str
 
-def NewOrcaPreviewOptions(base_preview_options : OrcaPreviewOptions) -> OrcaPreviewOptions :
+def NewMimicPreviewOptions(base_preview_options : MimicPreviewOptions) -> MimicPreviewOptions :
   return {
     "name": "preview",
     "project_dir": abspath(base_preview_options["project_dir"]) if not base_preview_options.get("project_dir") is None else getcwd()
    }
 
-class OrcaOptions (TypedDict):
-  command: Union[OrcaCloneOptions, OrcaLintOptions, OrcaAliasOptions, OrcaInitOptions, OrcaPreviewOptions]
+class MimicOptions (TypedDict):
+  command: Union[MimicCloneOptions, MimicLintOptions, MimicAliasOptions, MimicInitOptions, MimicPreviewOptions]
   working_dir: str
   debug: bool
   logger: Logger
 
-def NewOrcaOptions(base_options : OrcaOptions) -> OrcaOptions:
+def NewMimicOptions(base_options : MimicOptions) -> MimicOptions:
   return {
     "command": base_options["command"],
     "working_dir": getcwd(),
     "debug": base_options.get("debug", False),
-    "logger": base_options.get("logger", Logger(LoggerOptions.DefaultWithName("orca")))
+    "logger": base_options.get("logger", Logger(LoggerOptions.DefaultWithName("mimic")))
   }

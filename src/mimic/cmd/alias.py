@@ -2,9 +2,9 @@ from os.path import exists
 from re import match
 
 from ..utils.alias_wallet import Alias, alias_name_regex, alias_wallet_exist, get_alias_wallet_from, save_alias_wallet_to
-from ..options import OrcaOptions
+from ..options import MimicOptions
 
-def _add_alias(options : OrcaOptions) -> bool :
+def _add_alias(options : MimicOptions) -> bool :
   alias_wallet_file_path = options["command"]["alias_wallet_file_path"].strip()
   alias_name = options["command"]["action"]["alias"].strip()
   repository_uri = options["command"]["action"]["repository_uri"].strip()
@@ -30,7 +30,7 @@ def _add_alias(options : OrcaOptions) -> bool :
 
   return True
 
-def _rm_alias(options : OrcaOptions) -> bool :
+def _rm_alias(options : MimicOptions) -> bool :
   alias_wallet_file_path = options["command"]["alias_wallet_file_path"].strip()
   alias_name = options["command"]["action"]["alias"].strip()
 
@@ -47,7 +47,7 @@ def _rm_alias(options : OrcaOptions) -> bool :
 
   return True
 
-def _list_alias(options : OrcaOptions) -> bool :
+def _list_alias(options : MimicOptions) -> bool :
   alias_wallet_file_path = options["command"]["alias_wallet_file_path"].strip()
 
   alias_wallet = get_alias_wallet_from(alias_wallet_file_path)
@@ -58,7 +58,7 @@ def _list_alias(options : OrcaOptions) -> bool :
   
   return True
 
-def _init_alias(options : OrcaOptions) -> bool :
+def _init_alias(options : MimicOptions) -> bool :
   alias_wallet_file_path = options["command"]["alias_wallet_file_path"].strip()
 
   if not alias_wallet_exist(alias_wallet_file_path):
@@ -70,7 +70,7 @@ def _init_alias(options : OrcaOptions) -> bool :
 
   return False
 
-def alias(options : OrcaOptions) -> bool :
+def alias(options : MimicOptions) -> bool :
   if options['command']["name"] != "alias":
     raise Exception("alias: invalid options")
   

@@ -2,10 +2,10 @@ from re import match
 from sys import stdout
 from typing import Union, Any
 
-from .config import OrcaVariable
+from .config import MimicVariable
 from ..utils.logger import ColorTable, ColorReset
 
-def check_valid_variable_input_type(variable : OrcaVariable, user_input : str) -> Union[Any, None] :
+def check_valid_variable_input_type(variable : MimicVariable, user_input : str) -> Union[Any, None] :
   match variable.type:
     case "boolean":
       if user_input.lower() == "true":
@@ -32,7 +32,7 @@ def check_valid_variable_input_type(variable : OrcaVariable, user_input : str) -
       return None
   return None
 
-def _get_variable_input_prompt(variable : OrcaVariable, show_constraints : bool) -> str :
+def _get_variable_input_prompt(variable : MimicVariable, show_constraints : bool) -> str :
   description = "" if variable.description == None else f"{variable.description}\n"
   
   constraints = ""
@@ -67,7 +67,7 @@ def _clean_input_invalid_prompt(invalid_input_prompt : str) -> None :
   stdout.write("\r")
   stdout.write(' ' * len(invalid_input_prompt))
 
-def get_user_variable_input(variable : OrcaVariable, show_constraints : bool = True) -> Union[Any, None] :
+def get_user_variable_input(variable : MimicVariable, show_constraints : bool = True) -> Union[Any, None] :
   input_prompt = _get_variable_input_prompt(variable, show_constraints)
   invalid_input_prompt = f"{ColorTable['RED']}invalid value, please retry{ColorReset}"
 
@@ -97,7 +97,7 @@ def get_user_variable_input(variable : OrcaVariable, show_constraints : bool = T
   return None
 
 def get_user_str_input(input_name : str, input_description : Union[str, None] = None, required : bool = True) -> Union[Any, None] :
-  return get_user_variable_input(OrcaVariable.NewFrom(input_name, "string", required, input_description, None))
+  return get_user_variable_input(MimicVariable.NewFrom(input_name, "string", required, input_description, None))
 
 def get_user_confirmation(confirmation_prompt : str):
- return get_user_variable_input(OrcaVariable.NewFrom(confirmation_prompt, "regex", required=True, item=r"^[Yy]|[Nn]$"), show_constraints=False)
+ return get_user_variable_input(MimicVariable.NewFrom(confirmation_prompt, "regex", required=True, item=r"^[Yy]|[Nn]$"), show_constraints=False)

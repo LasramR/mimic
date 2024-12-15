@@ -6,7 +6,8 @@ __pycache__/
 
 # CLI artifacts
 tmp/
-.aliases
+aliases.mimic
+.mimic.json
 
 # IDE
 .vscode/

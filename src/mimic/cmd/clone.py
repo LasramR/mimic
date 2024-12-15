@@ -5,10 +5,10 @@ from ..actions.git import git_action
 from ..actions.template import inject_project
 from ..actions.hook import hook_action
 from ..utils import git, cloning, fs, config, input, alias_wallet
-from ..options import OrcaOptions
+from ..options import MimicOptions
 
-def _run_hooks(project_dir : str, when : config.OrcaHookWhenType, orca_config : config.OrcaConfig, options : OrcaOptions) -> None :
-  hooks = orca_config.get_hooks_when(when)
+def _run_hooks(project_dir : str, when : config.MimicHookWhenType, mimic_config : config.MimicConfig, options : MimicOptions) -> None :
+  hooks = mimic_config.get_hooks_when(when)
   options["logger"].info(f"running '{when}' hooks ({len(hooks)})")
   for h in hooks:
     options["logger"].info(f"hook '{h.name or '<unnamed hook>'}'{' (skippable)' if h.ignore_user_skip else ''}")
@@ -28,7 +28,7 @@ def _run_hooks(project_dir : str, when : config.OrcaHookWhenType, orca_config : 
       else:
         raise Exception(f"hook '{h.name or '<unnamed hook>'}' failed")
 
-def clone(options : OrcaOptions) -> bool :
+def clone(options : MimicOptions) -> bool :
   if options['command']["name"] != "clone":
     raise Exception("clone: invalid options")
   
@@ -56,37 +56,37 @@ def clone(options : OrcaOptions) -> bool :
   options["logger"].success(f"{repository_uri} cloned")
 
 
-  orcarc_file_path = fs.resolve_existing_path(fs.get_file_with_extensions(f"{project_dir}{sep}.orcarc", ["", ".json", ".jsonc"]))
+  mimic_config_file_path = fs.resolve_existing_path(fs.get_file_with_extensions(f"{project_dir}{sep}.mimic", ["", ".json", ".jsonc"]))
 
-  if orcarc_file_path == None:
-    options["logger"].warn(f"no orcarc(.json)? file has been found: no more work to do. exiting")
+  if mimic_config_file_path == None:
+    options["logger"].warn(f"no .mimic(.json)? file has been found: no more work to do. exiting")
     return True
 
-  orca_config = config.load_orca_config(orcarc_file_path)
+  mimic_config = config.load_mimic_config(mimic_config_file_path)
 
-  if orca_config == None:
-    raise Exception(f"cloud not apply post clone instruction because of broken orca config (see {orcarc_file_path})")
+  if mimic_config == None:
+    raise Exception(f"cloud not apply post clone instruction because of broken mimic config (see {mimic_config_file_path})")
   
-  fs.remove_ignore(orcarc_file_path)
+  fs.remove_ignore(mimic_config_file_path)
 
-  if orca_config.git.enabled:
-    options["logger"].info(f"initializing new git repository in {project_dir} with main_branch={orca_config.git.main_branch}")
+  if mimic_config.git.enabled:
+    options["logger"].info(f"initializing new git repository in {project_dir} with main_branch={mimic_config.git.main_branch}")
 
-  git_action(project_dir, orca_config.git)
+  git_action(project_dir, mimic_config.git)
 
-  if not _run_hooks(project_dir, "pre_template_injection", orca_config, options):
+  if not _run_hooks(project_dir, "pre_template_injection", mimic_config, options):
     pass
 
   options["logger"].info(f"generating project {project_dir}")
   variables = {}
-  for v in orca_config.template.variables.keys():
-    variables[orca_config.template.variables[v].name] = input.get_user_variable_input(orca_config.template.variables[v])
+  for v in mimic_config.template.variables.keys():
+    variables[mimic_config.template.variables[v].name] = input.get_user_variable_input(mimic_config.template.variables[v])
   
   inject_project(project_dir, variables)
 
   options["logger"].success("ok")
 
-  if not _run_hooks(project_dir, "post_template_injection", orca_config, options):
+  if not _run_hooks(project_dir, "post_template_injection", mimic_config, options):
     pass
 
   return True

@@ -1,6 +1,6 @@
 from ..utils import git, config, input
 
-def git_action(project_dir : str, git_config : config.OrcaGitConfig) -> bool :
+def git_action(project_dir : str, git_config : config.MimicGitConfig) -> bool :
   git.remove_git_folder(project_dir) # Ensure this is gone
 
   if not git_config.enabled:

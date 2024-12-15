@@ -3,28 +3,28 @@ from os import sep
 from ..utils import fs, config, input
 from ..utils.logger import ColorTable, ColorReset
 from ..actions.template import preview_project
-from ..options import OrcaOptions
+from ..options import MimicOptions
 
-def preview(options : OrcaOptions) -> bool:
+def preview(options : MimicOptions) -> bool:
   if options['command']['name'] != "preview":
     raise Exception("preview: invalid options")
   
   project_dir = options["command"]["project_dir"]
-  orcarc_file_path = fs.resolve_existing_path(fs.get_file_with_extensions(f"{project_dir}{sep}.orcarc", ["", ".json", ".jsonc"]))
+  mimic_config_file_path = fs.resolve_existing_path(fs.get_file_with_extensions(f"{project_dir}{sep}.mimic", ["", ".json", ".jsonc"]))
 
-  if orcarc_file_path == None:
-    options["logger"].warn(f"no orcarc(.json)? file has been found: no more work to do. exiting")
+  if mimic_config_file_path == None:
+    options["logger"].warn(f"no .mimic(.json)? file has been found: no more work to do. exiting")
     return True
 
-  orca_config = config.load_orca_config(orcarc_file_path)
+  mimic_config = config.load_mimic_config(mimic_config_file_path)
 
-  if orca_config == None:
-    raise Exception(f"cloud not preview project becasuse of broken orca config (see {orcarc_file_path})")
+  if mimic_config == None:
+    raise Exception(f"cloud not preview project becasuse of broken mimic config (see {mimic_config_file_path})")
   
   options["logger"].info(f"previewing project {project_dir}")
   variables = {}
-  for v in orca_config.template.variables.keys():
-    variables[orca_config.template.variables[v].name] = input.get_user_variable_input(orca_config.template.variables[v])
+  for v in mimic_config.template.variables.keys():
+    variables[mimic_config.template.variables[v].name] = input.get_user_variable_input(mimic_config.template.variables[v])
 
   project_preview = preview_project(project_dir, variables)
 

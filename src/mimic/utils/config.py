@@ -3,7 +3,7 @@ from json import load
 from os import remove
 from typing import Union, Literal, List, Dict, Any
 
-class OrcaGitConfig:
+class MimicGitConfig:
   enabled: bool = False
   main_branch: str = "main"
 
@@ -14,11 +14,11 @@ class OrcaGitConfig:
     self.enabled = validated_raw.get("enabled", False)
     self.main_branch = validated_raw.get("main_branch", "main")
 
-OrcaVariableTypeType = Literal["string", "number", "boolean", "regex", "choice"]
+MimicVariableTypeType = Literal["string", "number", "boolean", "regex", "choice"]
 
-class OrcaVariable:
+class MimicVariable:
   name: str
-  type: OrcaVariableTypeType
+  type: MimicVariableTypeType
   required: bool = True
   description: Union[str, None] = None
   item: Union[Any, None] = None
@@ -34,21 +34,21 @@ class OrcaVariable:
       self.item = validated_raw.get("item", None)
 
   @staticmethod
-  def NewFrom(name : str, type : OrcaVariableTypeType, required: bool = True, description: Union[str, None] = None, item: Union[Any, None] = None):
+  def NewFrom(name : str, type : MimicVariableTypeType, required: bool = True, description: Union[str, None] = None, item: Union[Any, None] = None):
     if type == "regex" and not isinstance(item, str):
-      raise Exception("could not create OrcaVariable of type regex without a valid item (str) qualifier")
+      raise Exception("could not create MimicVariable of type regex without a valid item (str) qualifier")
     
     if type == "choice" and (not isinstance(item, list) or len(item) < 1 or not isinstance(item[0], str)):
-      raise Exception("could not create OrcaVariable of type regex without a valid item (List[str]) qualifier")
+      raise Exception("could not create MimicVariable of type regex without a valid item (List[str]) qualifier")
 
-    return OrcaVariable(name, {
+    return MimicVariable(name, {
       "type": type,
       "required": required,
       "description": description,
       "item": item
     })
   
-class OrcaVariableReference:
+class MimicVariableReference:
 
   def __init__(self, name: str, source_path: str, is_directory : bool = False, is_file = False):
     self.name = name
@@ -56,8 +56,8 @@ class OrcaVariableReference:
     self.is_directory = is_directory
     self.is_file = is_file
 
-class OrcaTemplateConfig:
-  variables: Dict[str, OrcaVariable] = {}
+class MimicTemplateConfig:
+  variables: Dict[str, MimicVariable] = {}
 
   def __init__(self, validated_raw : Union[Dict[str, Any], None]):
     if validated_raw == None:
@@ -65,13 +65,13 @@ class OrcaTemplateConfig:
     
     if raw_variables := validated_raw.get("variables"):
       for v in raw_variables.keys():
-        self.variables[v] = OrcaVariable(v, raw_variables[v])
+        self.variables[v] = MimicVariable(v, raw_variables[v])
 
-OrcaHookWhenType = Literal["pre_template_injection", "post_template_injection"]
+MimicHookWhenType = Literal["pre_template_injection", "post_template_injection"]
 
-class OrcaHookConfig:
+class MimicHookConfig:
   name: Union[str, None]
-  when: OrcaHookWhenType
+  when: MimicHookWhenType
   steps: List[str] = []
   ignore_error: bool
   ignore_user_skip: bool
@@ -86,22 +86,22 @@ class OrcaHookConfig:
     self.ignore_error = validated_raw.get("ignore_error", False)
     self.ignore_user_skip = validated_raw.get("ignore_user_skip", False)
 
-class OrcaConfig:
-  git: OrcaGitConfig
-  template: OrcaTemplateConfig
-  hooks: List[OrcaHookConfig] = []
+class MimicConfig:
+  git: MimicGitConfig
+  template: MimicTemplateConfig
+  hooks: List[MimicHookConfig] = []
 
   def __init__(self, validated_raw : Dict[str, Any]):
-    self.git = OrcaGitConfig(validated_raw.get("git", None))
-    self.template = OrcaTemplateConfig(validated_raw.get("template", None))
+    self.git = MimicGitConfig(validated_raw.get("git", None))
+    self.template = MimicTemplateConfig(validated_raw.get("template", None))
     if raw_hooks := validated_raw.get("hooks"):
       for h in raw_hooks:
-        self.hooks.append(OrcaHookConfig(h))
+        self.hooks.append(MimicHookConfig(h))
 
-  def get_hooks_when(self, when : OrcaHookWhenType) -> List[OrcaHookConfig]:
+  def get_hooks_when(self, when : MimicHookWhenType) -> List[MimicHookConfig]:
     return list(filter(lambda h: h.when == when, self.hooks))
 
-class OrcaConfigIssue:
+class MimicConfigIssue:
   property: str
   reason: str
 
@@ -109,35 +109,35 @@ class OrcaConfigIssue:
     self.property = property
     self.reason = reason
 
-def is_orcarc_data_valid(orcarc_file_path : str) -> List[OrcaConfigIssue]:
-  with open("orcarc.schema.json", "r") as fd:
+def is_mimic_config_file_data_valid(mimic_config_file_path : str) -> List[MimicConfigIssue]:
+  with open(".mimic.schema.json", "r") as fd:
     schema = load(fd)
 
-  with open(orcarc_file_path, "r") as fd:
-    orcarc_data = load(fd)
+  with open(mimic_config_file_path, "r") as fd:
+    mimic_config_file_data = load(fd)
 
     validator = Draft202012Validator(schema)
-    validator_errors = sorted(validator.iter_errors(orcarc_data), key=lambda e: e.path)
+    validator_errors = sorted(validator.iter_errors(mimic_config_file_data), key=lambda e: e.path)
     format_issues = []
 
     for error in validator_errors:
-      format_issues.append(OrcaConfigIssue('.'.join(map(str, error.path)), error.message))
+      format_issues.append(MimicConfigIssue('.'.join(map(str, error.path)), error.message))
 
     return format_issues
 
-def load_orca_config(orcarc_file_path : str) -> Union[OrcaConfig, None]:
+def load_mimic_config(mimic_config_file_path : str) -> Union[MimicConfig, None]:
   try:
-    with open("orcarc.schema.json", "r") as fd:
+    with open(".mimic.schema.json", "r") as fd:
       schema = load(fd)
 
-    with open(orcarc_file_path, "r") as fd:
-      orcarc_data = load(fd)
-      validate(orcarc_data, schema)
-      return OrcaConfig(orcarc_data)
+    with open(mimic_config_file_path, "r") as fd:
+      mimic_config_file_data = load(fd)
+      validate(mimic_config_file_data, schema)
+      return MimicConfig(mimic_config_file_data)
   except Exception as e:
     return None
 
-class OrcaFileContentPreview:
+class MimicFileContentPreview:
 
   raw : str
   parsed: str
@@ -148,11 +148,11 @@ class OrcaFileContentPreview:
     self.parsed = parsed
     self.line = line
 
-class OrcaPreview:
+class MimicPreview:
 
   directory_preview: Dict[str, str]
   file_preview: Dict[str, str]
-  file_content_preview: Dict[str, List[OrcaFileContentPreview]]
+  file_content_preview: Dict[str, List[MimicFileContentPreview]]
 
   def __init__(self):
     self.directory_preview = {}

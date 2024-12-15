@@ -2,7 +2,7 @@ from subprocess import Popen, PIPE
 from threading import Thread
 from typing import IO
 
-from ..utils.config import OrcaHookConfig
+from ..utils.config import MimicHookConfig
 from ..utils.input import get_user_confirmation
 
 def _hook_print_command_stream(cp : Popen[str], stream : IO[str]) -> None :
@@ -11,7 +11,7 @@ def _hook_print_command_stream(cp : Popen[str], stream : IO[str]) -> None :
       break
     print(x, end="")
 
-def hook_action(project_dir : str, hook_config : OrcaHookConfig, unsafe_mode : bool = False) -> bool :
+def hook_action(project_dir : str, hook_config : MimicHookConfig, unsafe_mode : bool = False) -> bool :
   for command in hook_config.steps:
     if unsafe_mode or get_user_confirmation(f"{project_dir}: `{command}` will be executed. Continue Y/n ?").upper() == "Y":
       command_cp = Popen([command], cwd=project_dir, text=True, shell=True, stdout=PIPE, stderr=PIPE);
