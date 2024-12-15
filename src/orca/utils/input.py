@@ -22,6 +22,13 @@ def check_valid_variable_input_type(variable : OrcaVariable, user_input : str) -
     case "regex":
       if not match(variable.item, user_input) is None:
         return user_input
+    case "choice":
+      try:
+        i = int(user_input)
+        if 0 <= i and i <= len(variable.item) - 1:
+          return variable.item[i]
+      except:
+        return None
     case _:
       return None
   return None
@@ -30,8 +37,14 @@ def _get_variable_input_prompt(variable : OrcaVariable, show_constraints : bool)
   description = "" if variable.description == None else f"{variable.description}\n"
   
   constraints = ""
+  
   if show_constraints and variable.type == "regex":
     constraints = f'must match "{variable.item}"\n'
+  
+  if variable.type == "choice":
+    constraints = f"must be one of:\n"
+    for i in range(len(variable.item)):
+      constraints += f"[{i}] - {variable.item[i]}\n"
   
   required = "(skip empty) " if not variable.required else ""
 
@@ -55,15 +68,7 @@ def _clean_input_invalid_prompt(invalid_input_prompt : str) -> None :
   stdout.write("\r")
   stdout.write(' ' * len(invalid_input_prompt))
 
-
-def get_user_variable_choice(variable : OrcaVariable) -> Union[Any, None] :
-  pass
-
 def get_user_variable_input(variable : OrcaVariable, show_constraints : bool = True) -> Union[Any, None] :
-  if variable.type == "choice":
-    return get_user_variable_choice(variable)
-  
-
   input_prompt = _get_variable_input_prompt(variable, show_constraints)
   invalid_input_prompt = f"{ColorTable['RED']}invalid value, please retry{ColorReset}"
 
