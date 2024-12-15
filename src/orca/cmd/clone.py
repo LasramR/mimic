@@ -11,7 +11,7 @@ def _run_hooks(project_dir : str, when : config.OrcaHookWhenType, orca_config : 
   hooks = orca_config.get_hooks_when(when)
   options["logger"].info(f"running '{when}' hooks ({len(hooks)})")
   for h in hooks:
-    options["logger"].info(f"hook '{h.name or '<unnamed hook>'}'{' (required)' if not h.ignore_user_skip else ''}")
+    options["logger"].info(f"hook '{h.name or '<unnamed hook>'}'{' (skippable)' if h.ignore_user_skip else ''}")
 
     hook_result = True
     try:

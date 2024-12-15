@@ -42,10 +42,10 @@ def _get_variable_input_prompt(variable : OrcaVariable, show_constraints : bool)
     constraints = f'must match "{variable.item}"\n'
   
   if variable.type == "choice":
-    constraints = f"must be one of:\n"
+    constraints = f"must be one of (specify index):\n"
     for i in range(len(variable.item)):
       constraints += f"[{i}] - {variable.item[i]}\n"
-  
+
   required = "(skip empty) " if not variable.required else ""
 
   return f"{description}{constraints}{variable.name}: {required}"
