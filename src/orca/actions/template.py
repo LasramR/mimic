@@ -1,11 +1,12 @@
-from re import sub
+from re import sub, finditer
 from os import walk
-from os.path import join
+from os.path import join, basename
 from shutil import move
 from threading import Thread, Lock
-from typing import Dict, Any
+from typing import Dict, Any, Set
 
 from ..utils.fs import get_file_from_template_file, remove_ignore, is_template_file
+from ..utils.config import OrcaVariableReference
 
 extract_variable_name_regex = r"{{\s*(?P<variable_name>\w+)\s*}}"
 def _inject_variable(template: str, variables : Dict[str, Any]) -> str:
@@ -67,3 +68,48 @@ def inject_project(project_dir : str, variables) -> bool :
     t.join()
   
   return all([inject_file_results[k] for k in inject_file_results.keys()])
+
+def _get_variables_from(template : str) -> Set[str] :
+  return {match.group("variable_name") for match in finditer(extract_variable_name_regex, template)}
+
+def _get_variables_from_file(source_file_path : str, variables : Set[OrcaVariableReference], variables_lock : Lock) -> None :
+  try:
+    source_variables : Set[OrcaVariableReference] = set()
+    with open(source_file_path, "r") as fd:
+      for v in _get_variables_from("".join(fd.readlines())):
+        source_variables.add(OrcaVariableReference(v, source_file_path))
+    
+    for v in _get_variables_from(basename(source_file_path)):
+      source_variables.add(OrcaVariableReference(v, source_file_path, is_file=True))
+    
+    with variables_lock:
+      for v in source_variables:
+        variables.add(v)
+  
+  except Exception as e:
+    print(e)
+    pass
+
+def get_variables_from_project(project_dir : str) -> Set[OrcaVariableReference]:
+  variables : Set[OrcaVariableReference] = set()
+  template_file_paths = []
+
+  for root, dirnames, filenames in walk(project_dir):
+    for dirname in dirnames:
+      if is_template_file(dirname):
+        for v in _get_variables_from(join(root, dirname)):
+          variables.add(OrcaVariableReference(v, join(root, dirname), is_directory=True))
+    for filename in filenames:
+      if is_template_file(filename):
+        template_file_paths.append(join(root, filename))
+
+  variables_lock = Lock()
+  get_variables_threads = [
+    Thread(target=_get_variables_from_file, args=(source_file_path, variables, variables_lock)) for source_file_path in template_file_paths
+  ]
+  for t in get_variables_threads:
+    t.start()
+  for t in get_variables_threads:
+    t.join()
+  
+  return variables

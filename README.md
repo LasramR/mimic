@@ -4,9 +4,9 @@ WIP: I will find a better name when it will work
 
 TODO:
 > optionnal : conditionnal template rendering
-> variables : choice
 > orca preview
-> bucket ?
+> save
+> lint : print all variables and if they are used
 
 > documentation
 > installation

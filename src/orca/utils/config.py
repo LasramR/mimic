@@ -47,6 +47,14 @@ class OrcaVariable:
       "description": description,
       "item": item
     })
+  
+class OrcaVariableReference:
+
+  def __init__(self, name: str, source_path: str, is_directory : bool = False, is_file = False):
+    self.name = name
+    self.source_path = source_path
+    self.is_directory = is_directory
+    self.is_file = is_file
 
 class OrcaTemplateConfig:
   variables: Dict[str, OrcaVariable] = {}
