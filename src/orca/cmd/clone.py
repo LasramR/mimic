@@ -11,9 +11,9 @@ def _run_hooks(project_dir : str, when : config.OrcaHookWhenType, orca_config : 
   hooks = orca_config.get_hooks_when(when)
   options["logger"].info(f"running '{when}' hooks ({len(hooks)})")
   for h in hooks:
-    options["logger"].info(f"hook '{h.name or '<unnamed hook>'}'")
+    options["logger"].info(f"hook '{h.name or '<unnamed hook>'}'{' (required)' if not h.ignore_user_skip else ''}")
 
-    hook_result = False
+    hook_result = True
     try:
       hook_result = hook_action(project_dir, h, options["command"]["unsafe_mode"])
     except Exception as e:
