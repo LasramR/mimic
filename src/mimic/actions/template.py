@@ -1,6 +1,6 @@
 from re import sub, finditer
-from os import walk
-from os.path import join, basename
+from os import walk, sep
+from os.path import join, basename, dirname
 from shutil import move
 from threading import Thread, Lock
 from typing import Dict, Any, Set, List
@@ -8,19 +8,26 @@ from typing import Dict, Any, Set, List
 from ..utils.fs import get_file_from_template_file, remove_ignore, is_template_file
 from ..utils.config import MimicVariableReference, MimicPreview, MimicFileContentPreview
 
-extract_variable_name_regex = r"{{\s*(?P<variable_name>\w+)\s*}}"
+extract_variable_name_regex = r"(?<!\{\{)\{\{\s*(?P<variable_name>\w+)\s*\}\}(?!\}\})"
+extract_escaped_variable_name_regex = r"\{\{\{\{\s*(?P<variable_name>\w+)\s*\}\}\}\}"
+
 def inject_variable(template: str, variables : Dict[str, Any]) -> str:
-  def replace_variable(match):
+  def _replace_variable(match):
     variable_name = match.group("variable_name")
     return str(variables.get(variable_name, "") or "")
-  return sub(extract_variable_name_regex, replace_variable, template)
+  def _escape_variable(match):
+      variable_name = match.group("variable_name")
+      return "{{ " + variable_name + " }}"
+
+  template_with_replaced_variables = sub(extract_variable_name_regex, _replace_variable, template)
+  return sub(extract_escaped_variable_name_regex, _escape_variable, template_with_replaced_variables)
 
 def _inject_file(source_file_path : str, variables : Dict[str, Any], inject_file_results : Dict[str, bool], inject_file_results_lock : Lock) -> None :
   try:
     with open(source_file_path, "r") as fd:
       parsed_file_content = inject_variable("".join(fd.readlines()), variables)
 
-    parsed_file_path = get_file_from_template_file(inject_variable(source_file_path, variables))
+    parsed_file_path = join(dirname(source_file_path), get_file_from_template_file(inject_variable(basename(source_file_path), variables)))
 
     with open(parsed_file_path, "w") as fd:
       fd.write(parsed_file_content)
@@ -121,8 +128,8 @@ def _preview_file(source_file_path : str, variables : Dict[str, Any], project_pr
         if striped_line != parsed_line:
           changes.append(MimicFileContentPreview(striped_line, parsed_line, lineno))
         lineno += 1
-
-    parsed_file_path = get_file_from_template_file(inject_variable(source_file_path, variables))
+  
+    parsed_file_path = sep.join(map(lambda d : get_file_from_template_file(d), inject_variable(source_file_path, variables).split(sep)))
 
     with project_preview_lock:
       project_preview.file_content_preview[source_file_path] = changes
@@ -138,7 +145,7 @@ def preview_project(project_dir : str, variables : Dict[str, Any]) -> MimicPrevi
   for root, dirnames, filenames in walk(project_dir):
     for dirname in dirnames:
       if is_template_file(dirname):
-        project_preview.directory_preview[join(root, dirname)] = inject_variable(join(root, dirname), variables)
+        project_preview.directory_preview[join(root, dirname)] = get_file_from_template_file(inject_variable(join(root, dirname), variables))
 
     for filename in filenames:
       if is_template_file(filename):
