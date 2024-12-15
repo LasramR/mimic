@@ -63,11 +63,12 @@ def clone(options : OrcaOptions) -> bool :
     return True
 
   orca_config = config.load_orca_config(orcarc_file_path)
-  fs.remove_ignore(orcarc_file_path)
 
   if orca_config == None:
     raise Exception(f"cloud not apply post clone instruction because of broken orca config (see {orcarc_file_path})")
   
+  fs.remove_ignore(orcarc_file_path)
+
   if orca_config.git.enabled:
     options["logger"].info(f"initializing new git repository in {project_dir} with main_branch={orca_config.git.main_branch}")
 

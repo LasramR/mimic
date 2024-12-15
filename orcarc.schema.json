@@ -72,7 +72,9 @@
                   "properties": {
                     "item": {
                       "type": "array",
-                      "items": "string",
+                      "items": {
+                        "type": "string"
+                      },
                       "minItems": 1
                     }
                   }
@@ -82,7 +84,6 @@
           }
         }
       },
-      "required": [],
       "additionalProperties": false
     },
     "hooks": {
@@ -123,6 +124,5 @@
       "additionalProperties": false
     }
   },
-  "required": [],
   "additionalProperties": false
 }

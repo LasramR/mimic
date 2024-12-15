@@ -14,19 +14,39 @@ class OrcaGitConfig:
     self.enabled = validated_raw.get("enabled", False)
     self.main_branch = validated_raw.get("main_branch", "main")
 
-OrcaVariableTypeType = Literal["string", "number", "boolean"]
+OrcaVariableTypeType = Literal["string", "number", "boolean", "regex", "choice"]
 
 class OrcaVariable:
   name: str
   type: OrcaVariableTypeType
   required: bool = True
   description: Union[str, None] = None
+  item: Union[Any, None] = None
 
   def __init__(self, name: str, validated_raw : Dict[str, Any]):
     self.name = name
     self.type = validated_raw["type"]
     self.required = validated_raw.get("required", True)
     self.description = validated_raw.get("description", None)
+    if self.type == "regex":
+      self.item = rf"{validated_raw.get('item', None)}"
+    else:
+      self.item = validated_raw.get("item", None)
+
+  @staticmethod
+  def NewFrom(name : str, type : OrcaVariableTypeType, required: bool = True, description: Union[str, None] = None, item: Union[Any, None] = None):
+    if type == "regex" and not isinstance(item, str):
+      raise Exception("could not create OrcaVariable of type regex without a valid item (str) qualifier")
+    
+    if type == "choice" and (not isinstance(item, list) or len(item) < 1 or not isinstance(item[0], str)):
+      raise Exception("could not create OrcaVariable of type regex without a valid item (List[str]) qualifier")
+
+    return OrcaVariable(name, {
+      "type": type,
+      "required": required,
+      "description": description,
+      "item": item
+    })
 
 class OrcaTemplateConfig:
   variables: Dict[str, OrcaVariable] = {}
@@ -106,5 +126,5 @@ def load_orca_config(orcarc_file_path : str) -> Union[OrcaConfig, None]:
       orcarc_data = load(fd)
       validate(orcarc_data, schema)
       return OrcaConfig(orcarc_data)
-  except:
+  except Exception as e:
     return None
