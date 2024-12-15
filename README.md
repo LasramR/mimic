@@ -6,7 +6,7 @@ TODO:
 > optionnal : conditionnal template rendering
 > variables : regex and choice
 > orca preview
+> bucket ?
 
-> hook skip_error, skip_user_ignore
 > documentation
 > installation

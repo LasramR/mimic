@@ -39,13 +39,46 @@
               },
               "type": {
                 "type": "string",
-                "enum": ["string", "number", "boolean"]
+                "enum": ["string", "number", "boolean", "regex", "choice"]
+              },
+              "item": {
+                "description": "type qualifier"
               },
               "required": { 
                 "type": "boolean"
               }
             },
-          "required": ["type"]
+            "required": ["type"],
+            "allOf": [
+              {
+                "if": {
+                  "properties": { "type": { "const": "regex" } }
+                },
+                "then": {
+                  "required": ["item"],
+                  "properties": {
+                    "item": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": { "type": { "const": "choice" } }
+                },
+                "then": {
+                  "required": ["item"],
+                  "properties": {
+                    "item": {
+                      "type": "array",
+                      "items": "string",
+                      "minItems": 1
+                    }
+                  }
+                }
+              }
+            ]
           }
         }
       },
