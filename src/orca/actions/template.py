@@ -1,5 +1,5 @@
 from re import sub
-from os import linesep, walk
+from os import walk
 from os.path import join
 from threading import Thread, Lock
 from typing import Dict, Any

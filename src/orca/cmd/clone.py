@@ -15,16 +15,16 @@ def clone(options : OrcaOptions) -> bool :
 
   options["logger"].info(f"resolving repository {repository_url}")
   if not git.repository_exists(repository_url):
-    raise Exception(f'clone: could not resolve repository {repository_url}. Are you sure that you have access to the repository ?')
+    raise Exception(f'could not resolve repository {repository_url}. Are you sure that you have access to the repository ?')
 
   project_dir = options["command"].get("out_dir") or abspath(git.repository_name(repository_url))
 
   if exists(project_dir):
-    raise Exception(f"clone: out_dir {project_dir} already exist and cloning into it will fail. cancelling")
+    raise Exception(f"out_dir {project_dir} already exist and cloning into it will fail. cancelling")
 
   options["logger"].info(f"cloning {repository_url} in {project_dir}")
   if not git.clone_repository(repository_url, project_dir):
-    raise Exception(f'clone: could not clone repository at "{project_dir}"')
+    raise Exception(f'could not clone repository at "{project_dir}"')
   git.remove_git_folder(project_dir)
   options["logger"].success(f"{repository_url} cloned")
   
@@ -38,7 +38,7 @@ def clone(options : OrcaOptions) -> bool :
   fs.remove_ignore(orcarc_file_path)
 
   if orca_config == None:
-    raise Exception(f"clone: cloud not apply post clone instruction because of broken orca config (see {orcarc_file_path})")
+    raise Exception(f"cloud not apply post clone instruction because of broken orca config (see {orcarc_file_path})")
   
   if orca_config.git.enabled:
     options["logger"].info("configuring git")
