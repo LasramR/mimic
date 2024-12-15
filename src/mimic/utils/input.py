@@ -46,7 +46,7 @@ def _get_variable_input_prompt(variable : MimicVariable) -> str :
 
   return f"{constraints}{variable.name}{description}: {required}"
 
-def _get_variable_invalid_input_prompt(variable : MimicVariable):
+def _get_variable_invalid_input_prompt(variable : MimicVariable) -> str :
   invalid_input_prompt = f"{ColorTable['RED']}invalid value, please retry"
   
   if variable.type == "number":
