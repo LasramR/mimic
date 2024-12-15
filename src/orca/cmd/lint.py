@@ -48,11 +48,11 @@ def lint(options : OrcaOptions) -> bool:
     options["logger"].warn(f"There {len(undeclared_variables)} declared variables in project {project_dir} that are not defined in {orcarc_file_path}")
     for uv in undeclared_variables:
       if uv.is_file:
-        options["logger"].warn(f"file {uv.source_path} has a reference to {{{uv.name}}} in its name")
+        options["logger"].warn(f"- file {uv.source_path} has a reference to {{{{{uv.name}}}}} in its name")
       elif uv.is_directory:
-        options["logger"].warn(f"directory {uv.source_path} has a reference to {{{uv.name}}} in its name")
+        options["logger"].warn(f"- directory {uv.source_path} has a reference to {{{{{uv.name}}}}} in its name")
       else:
-        options["logger"].warn(f"{{{uv.name}}} is declared in file {uv.source_path}")
+        options["logger"].warn(f"- {{{{{uv.name}}}}} is declared in file {uv.source_path}")
     options["logger"].warn("These variables will be overwritten with an empty string during project creation")
 
   if 0 == len(undeclared_variables) + len(unreferenced_variables):

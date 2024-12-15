@@ -1,5 +1,4 @@
 from re import match
-from os import linesep
 from sys import stdout
 from typing import Union, Any
 

@@ -5,7 +5,8 @@ from orca.cmd.alias import alias
 from orca.cmd.clone import clone
 from orca.cmd.lint import lint
 from orca.cmd.init import init
-from orca.options import NewOrcaCloneOptions, NewOrcaInitOptions, NewOrcaLintOptions, NewOrcaOptions, NewOrcaAliasOptions, NewOrcaAliasAction
+from orca.cmd.preview import preview
+from orca.options import NewOrcaCloneOptions, NewOrcaInitOptions, NewOrcaLintOptions, NewOrcaOptions, NewOrcaAliasOptions, NewOrcaAliasAction, NewOrcaPreviewOptions
 
 def main():
   signal(SIGINT, lambda _a, _b: print() or exit(-1))
@@ -46,6 +47,9 @@ def main():
   init_parser = sub_parser.add_parser("init", description="setup a new orca project template")
   init_parser.add_argument("project_dir", type=str, help="Specify the orca project directory", nargs='?')
 
+  preview_parser = sub_parser.add_parser("preview", description="Preview your orca project template")
+  preview_parser.add_argument("project_dir", type=str, help="Specify the orca project directory", nargs='?')
+
   args = arg_parser.parse_args()
 
   command_options = None
@@ -70,6 +74,10 @@ def main():
       command_options = NewOrcaInitOptions({
         "project_dir": args.project_dir
       })
+    case "preview":
+      command_options = NewOrcaPreviewOptions({
+        "project_dir": args.project_dir
+      })
     case _ as unknown:
       arg_parser.error(f'unknown command "{unknown}". Use -h,--help for usage information.')
 
@@ -89,6 +97,8 @@ def main():
         result = lint(options)
       case "init":
         result = init(options)
+      case "preview":
+        result = preview(options)
       case _ as unknown:
         options["logger"].error(f'unknown command "{unknown}". Use -h,--help for usage information.')
   except Exception as e:

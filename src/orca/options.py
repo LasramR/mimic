@@ -99,9 +99,18 @@ def NewOrcaInitOptions(base_init_options : OrcaInitOptions) -> OrcaInitOptions :
     "project_dir": abspath(base_init_options["project_dir"]) if not base_init_options.get("project_dir") is None else getcwd()
    }
 
+class OrcaPreviewOptions (OrcaCommandOptions):
+  name: Literal["preview"]
+  project_dir : str
+
+def NewOrcaPreviewOptions(base_preview_options : OrcaPreviewOptions) -> OrcaPreviewOptions :
+  return {
+    "name": "preview",
+    "project_dir": abspath(base_preview_options["project_dir"]) if not base_preview_options.get("project_dir") is None else getcwd()
+   }
 
 class OrcaOptions (TypedDict):
-  command: Union[OrcaCloneOptions, OrcaLintOptions, OrcaAliasOptions, OrcaInitOptions]
+  command: Union[OrcaCloneOptions, OrcaLintOptions, OrcaAliasOptions, OrcaInitOptions, OrcaPreviewOptions]
   working_dir: str
   debug: bool
   logger: Logger

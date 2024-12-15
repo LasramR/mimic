@@ -136,3 +136,25 @@ def load_orca_config(orcarc_file_path : str) -> Union[OrcaConfig, None]:
       return OrcaConfig(orcarc_data)
   except Exception as e:
     return None
+
+class OrcaFileContentPreview:
+
+  raw : str
+  parsed: str
+  line: int
+
+  def __init__(self, raw : str, parsed: str, line: int):
+    self.raw = raw
+    self.parsed = parsed
+    self.line = line
+
+class OrcaPreview:
+
+  directory_preview: Dict[str, str]
+  file_preview: Dict[str, str]
+  file_content_preview: Dict[str, List[OrcaFileContentPreview]]
+
+  def __init__(self):
+    self.directory_preview = {}
+    self.file_preview = {}
+    self.file_content_preview = {}

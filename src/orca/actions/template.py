@@ -3,27 +3,24 @@ from os import walk
 from os.path import join, basename
 from shutil import move
 from threading import Thread, Lock
-from typing import Dict, Any, Set
+from typing import Dict, Any, Set, List
 
 from ..utils.fs import get_file_from_template_file, remove_ignore, is_template_file
-from ..utils.config import OrcaVariableReference
+from ..utils.config import OrcaVariableReference, OrcaPreview, OrcaFileContentPreview
 
 extract_variable_name_regex = r"{{\s*(?P<variable_name>\w+)\s*}}"
-def _inject_variable(template: str, variables : Dict[str, Any]) -> str:
+def inject_variable(template: str, variables : Dict[str, Any]) -> str:
   def replace_variable(match):
     variable_name = match.group("variable_name")
     return str(variables.get(variable_name, "") or "")
   return sub(extract_variable_name_regex, replace_variable, template)
 
-def parse_file(source_file_path: str, variables: Dict[str, Any]) -> str:
-  with open(source_file_path, "r") as fd:
-    return _inject_variable("".join(fd.readlines()), variables)
-
 def _inject_file(source_file_path : str, variables : Dict[str, Any], inject_file_results : Dict[str, bool], inject_file_results_lock : Lock) -> None :
   try:
-    parsed_file_content = parse_file(source_file_path, variables)
+    with open(source_file_path, "r") as fd:
+      parsed_file_content = inject_variable("".join(fd.readlines()), variables)
 
-    parsed_file_path = get_file_from_template_file(_inject_variable(source_file_path, variables))
+    parsed_file_path = get_file_from_template_file(inject_variable(source_file_path, variables))
 
     with open(parsed_file_path, "w") as fd:
       fd.write(parsed_file_content)
@@ -38,7 +35,7 @@ def _inject_file(source_file_path : str, variables : Dict[str, Any], inject_file
 
 def _inject_dir(source_dir : str, variables : Dict[str, Any]) -> bool:
   try:
-    move(source_dir, get_file_from_template_file(_inject_variable(source_dir, variables)))
+    move(source_dir, get_file_from_template_file(inject_variable(source_dir, variables)))
     return True
   except:
     return False
@@ -87,7 +84,6 @@ def _get_variables_from_file(source_file_path : str, variables : Set[OrcaVariabl
         variables.add(v)
   
   except Exception as e:
-    print(e)
     pass
 
 def get_variables_from_project(project_dir : str) -> Set[OrcaVariableReference]:
@@ -113,3 +109,48 @@ def get_variables_from_project(project_dir : str) -> Set[OrcaVariableReference]:
     t.join()
   
   return variables
+
+def _preview_file(source_file_path : str, variables : Dict[str, Any], project_preview : OrcaPreview, project_preview_lock : Lock):
+  try:
+    changes : List[OrcaFileContentPreview] = []
+    with open(source_file_path, "r") as fd:
+      lineno = 1
+      for line in fd:
+        striped_line = line.strip()
+        parsed_line = inject_variable(striped_line, variables).strip()
+        if striped_line != parsed_line:
+          changes.append(OrcaFileContentPreview(striped_line, parsed_line, lineno))
+        lineno += 1
+
+    parsed_file_path = get_file_from_template_file(inject_variable(source_file_path, variables))
+
+    with project_preview_lock:
+      project_preview.file_content_preview[source_file_path] = changes
+      if source_file_path != parsed_file_path:
+        project_preview.file_preview[source_file_path] = parsed_file_path
+  except:
+    pass
+
+def preview_project(project_dir : str, variables : Dict[str, Any]) -> OrcaPreview:
+  project_preview = OrcaPreview()
+  template_file_paths = []
+
+  for root, dirnames, filenames in walk(project_dir):
+    for dirname in dirnames:
+      if is_template_file(dirname):
+        project_preview.directory_preview[join(root, dirname)] = inject_variable(join(root, dirname), variables)
+
+    for filename in filenames:
+      if is_template_file(filename):
+        template_file_paths.append(join(root, filename))
+
+  project_preview_lock = Lock()
+  preview_file_threads = [
+    Thread(target=_preview_file, args=(source_file_path, variables, project_preview, project_preview_lock)) for source_file_path in template_file_paths
+  ]
+  for t in preview_file_threads:
+    t.start()
+  for t in preview_file_threads:
+    t.join()
+  
+  return project_preview
