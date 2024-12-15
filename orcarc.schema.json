@@ -74,6 +74,14 @@
             "items": {
               "type": "string"
             }
+          },
+          "ignore_error": {
+            "description": "",
+            "type": "boolean"
+          },
+          "ignore_user_skip": {
+            "description": "",
+            "type": "boolean"
           }
         },
         "required": ["when", "steps"],

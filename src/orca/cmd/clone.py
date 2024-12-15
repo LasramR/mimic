@@ -7,6 +7,27 @@ from ..actions.hook import hook_action
 from ..utils import git, cloning, fs, config, input, alias_wallet
 from ..options import OrcaOptions
 
+def _run_hooks(project_dir : str, when : config.OrcaHookWhenType, orca_config : config.OrcaConfig, options : OrcaOptions) -> None :
+  hooks = orca_config.get_hooks_when(when)
+  options["logger"].info(f"running '{when}' hooks ({len(hooks)})")
+  for h in hooks:
+    options["logger"].info(f"hook '{h.name or '<unnamed hook>'}'")
+
+    hook_result = False
+    try:
+      hook_result = hook_action(project_dir, h, options["command"]["unsafe_mode"])
+    except Exception as e:
+      if h.ignore_user_skip:
+        options["logger"].warn(f"hook '{h.name or '<unnamed hook>'}' skipped")
+      else:
+        raise e
+
+    if not hook_result:
+      if h.ignore_error:
+        options["logger"].warn(f"hook '{h.name or '<unnamed hook>'}' failed but non fatal")
+      else:
+        raise Exception(f"hook '{h.name or '<unnamed hook>'}' failed")
+
 def clone(options : OrcaOptions) -> bool :
   if options['command']["name"] != "clone":
     raise Exception("clone: invalid options")
@@ -52,11 +73,8 @@ def clone(options : OrcaOptions) -> bool :
 
   git_action(project_dir, orca_config.git)
 
-  pre_template_injection_hooks = orca_config.get_pre_template_injection_hooks()
-  options["logger"].info(f"running 'pre_template_injection' hooks ({len(pre_template_injection_hooks)})")
-  for h in pre_template_injection_hooks:
-    options["logger"].info(f"hook: '{h.name}'")
-    hook_action(project_dir, h, options["command"]["unsafe_mode"])
+  if not _run_hooks(project_dir, "pre_template_injection", orca_config, options):
+    pass
 
   options["logger"].info(f"generating project {project_dir}")
   variables = {}
@@ -67,9 +85,7 @@ def clone(options : OrcaOptions) -> bool :
 
   options["logger"].success("ok")
 
-  post_template_injection_hooks = orca_config.get_post_template_injection_hooks()
-  options["logger"].info(f"running 'post_template_injection' hooks ({len(post_template_injection_hooks)})")
-  for h in post_template_injection_hooks:
-    options["logger"].info(f"hook: '{h.name or '<unnamed hook>'}'")
-    hook_action(project_dir, h, options["command"]["unsafe_mode"])
+  if not _run_hooks(project_dir, "post_template_injection", orca_config, options):
+    pass
+
   return True

@@ -45,6 +45,8 @@ class OrcaHookConfig:
   name: Union[str, None]
   when: OrcaHookWhenType
   steps: List[str] = []
+  ignore_error: bool
+  ignore_user_skip: bool
 
   def __init__(self, validated_raw : Union[Dict[str, Any], None]):
     if validated_raw == None:
@@ -53,6 +55,8 @@ class OrcaHookConfig:
     self.name = validated_raw.get("name")
     self.when = validated_raw["when"]
     self.steps = validated_raw["steps"]
+    self.ignore_error = validated_raw.get("ignore_error", False)
+    self.ignore_user_skip = validated_raw.get("ignore_user_skip", False)
 
 class OrcaConfig:
   git: OrcaGitConfig
@@ -66,14 +70,8 @@ class OrcaConfig:
       for h in raw_hooks:
         self.hooks.append(OrcaHookConfig(h))
 
-  def _get_hooks_when(self, when : OrcaHookWhenType) -> List[OrcaHookWhenType]:
+  def get_hooks_when(self, when : OrcaHookWhenType) -> List[OrcaHookConfig]:
     return list(filter(lambda h: h.when == when, self.hooks))
-
-  def get_pre_template_injection_hooks(self) -> List[OrcaHookConfig] :
-    return self._get_hooks_when("pre_template_injection")
-  
-  def get_post_template_injection_hooks(self) -> List[OrcaHookConfig] :
-    return self._get_hooks_when("post_template_injection")
 
 class OrcaConfigIssue:
   property: str

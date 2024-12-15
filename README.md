@@ -3,10 +3,10 @@
 WIP: I will find a better name when it will work
 
 TODO:
-> allow file / folder renaming with template injection
-
 > optionnal : conditionnal template rendering
-
+> variables : regex and choice
 > orca preview
 
 > hook skip_error, skip_user_ignore
+> documentation
+> installation
