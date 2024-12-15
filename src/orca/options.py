@@ -86,8 +86,19 @@ def NewOrcaAliasOptions(base_alias_options : OrcaAliasOptions) -> OrcaAliasOptio
     "orca_config_file_path": abspath(base_alias_options["orca_config_file_path"]) if not base_alias_options.get("orca_config_file_path") is None else abspath(join(__file__, "..", "..", "..", ".aliases"))
   }
 
+class OrcaInitOptions (OrcaCommandOptions):
+  name: Literal["init"]
+  project_dir: str
+
+def NewOrcaInitOptions(base_init_options : OrcaInitOptions) -> OrcaInitOptions :
+  return {
+    "name": "init",
+    "project_dir": abspath(base_init_options["project_dir"]) if not base_init_options.get("project_dir") is None else getcwd()
+   }
+
+
 class OrcaOptions (TypedDict):
-  command: Union[OrcaCloneOptions, OrcaLintOptions, OrcaAliasOptions]
+  command: Union[OrcaCloneOptions, OrcaLintOptions, OrcaAliasOptions, OrcaInitOptions]
   working_dir: str
   debug: bool
   logger: Logger
