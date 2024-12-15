@@ -1,6 +1,6 @@
 {  
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/LasramR/mimic/.mimic.schema.json",
+  "$id": "https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.schema.json",
   "title": ".mimic",
   "description": "Configuration file for Mimic CLI",
   "type": "object",
