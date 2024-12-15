@@ -12,7 +12,7 @@ def main():
   signal(SIGINT, lambda _a, _b: print() or exit(-1))
   arg_parser = ArgumentParser(prog="mimic")
 
-  arg_parser.add_argument("-d", "--debug", action='store_true', help="Enable schr debug mode which displays compiler/linker commands during execution\ndisabled by default", required=False)
+  arg_parser.add_argument("-d", "--debug", action='store_true', help="Enable debug mode\ndisabled by default", required=False)
 
   sub_parser = arg_parser.add_subparsers(dest="command", required=True)
   

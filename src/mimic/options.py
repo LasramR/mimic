@@ -1,5 +1,5 @@
 from os import getcwd
-from os.path import abspath, join
+from os.path import abspath, join, dirname
 from typing import TypedDict, Literal, Union, Any
 
 from .utils.logger import Logger, LoggerOptions
@@ -20,7 +20,7 @@ def NewMimicCloneOptions(base_clone_options : MimicCloneOptions) -> MimicCloneOp
     "repository_uri": base_clone_options["repository_uri"],
     "out_dir": abspath(base_clone_options["out_dir"]) if not base_clone_options.get("out_dir") is None else None,
     "unsafe_mode": base_clone_options.get("unsafe_mode", False),
-    "alias_wallet_file_path": abspath(base_clone_options["alias_wallet_file_path"]) if not base_clone_options.get("alias_wallet_file_path") is None else abspath(join(__file__, "..", "..", "..", "aliases.mimic"))
+    "alias_wallet_file_path": abspath(base_clone_options["alias_wallet_file_path"]) if not base_clone_options.get("alias_wallet_file_path") is None else abspath(join(dirname(__file__), "..", "..", "aliases.mimic"))
 
    }
 
@@ -86,7 +86,7 @@ def NewMimicAliasOptions(base_alias_options : MimicAliasOptions) -> MimicAliasOp
   return {
     "name": "alias",
     "action": base_alias_options["action"],
-    "alias_wallet_file_path": abspath(base_alias_options["alias_wallet_file_path"]) if not base_alias_options.get("alias_wallet_file_path") is None else abspath(join(__file__, "..", "..", "..", "aliases.mimic"))
+    "alias_wallet_file_path": abspath(base_alias_options["alias_wallet_file_path"]) if not base_alias_options.get("alias_wallet_file_path") is None else abspath(join(dirname(__file__), "..", "..", "aliases.mimic"))
   }
 
 class MimicInitOptions (MimicCommandOptions):

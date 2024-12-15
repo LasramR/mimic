@@ -1,6 +1,6 @@
 from jsonschema import validate, Draft202012Validator
 from json import load
-from os import remove
+from os.path import join, dirname
 from typing import Union, Literal, List, Dict, Any
 
 class MimicGitConfig:
@@ -110,7 +110,7 @@ class MimicConfigIssue:
     self.reason = reason
 
 def is_mimic_config_file_data_valid(mimic_config_file_path : str) -> List[MimicConfigIssue]:
-  with open(".mimic.schema.json", "r") as fd:
+  with open(join(dirname(__file__), "..", "..", "..", ".mimic.schema.json"), "r") as fd:
     schema = load(fd)
 
   with open(mimic_config_file_path, "r") as fd:
@@ -127,7 +127,7 @@ def is_mimic_config_file_data_valid(mimic_config_file_path : str) -> List[MimicC
 
 def load_mimic_config(mimic_config_file_path : str) -> Union[MimicConfig, None]:
   try:
-    with open(".mimic.schema.json", "r") as fd:
+    with open(join(dirname(__file__), "..", "..", "..", ".mimic.schema.json"), "r") as fd:
       schema = load(fd)
 
     with open(mimic_config_file_path, "r") as fd:
