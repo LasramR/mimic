@@ -7,7 +7,7 @@ from ..options import OrcaOptions
 def _add_alias(options : OrcaOptions) -> bool :
   alias_wallet_file_path = options["command"]["alias_wallet_file_path"].strip()
   alias_name = options["command"]["action"]["alias"].strip()
-  repository_url = options["command"]["action"]["repository_url"].strip()
+  repository_uri = options["command"]["action"]["repository_uri"].strip()
 
   if match(alias_name_regex, alias_name) is None:
     raise Exception(f"{alias_name} is an invalid alias. Aliases can contain letters, numbers, underscores and hyphens.")
@@ -19,9 +19,9 @@ def _add_alias(options : OrcaOptions) -> bool :
   alias_wallet = get_alias_wallet_from(alias_wallet_file_path)
 
   if alias_name in alias_wallet.aliases:
-    raise Exception(f"alias {alias_name} ({alias_wallet.aliases[alias_name].repository_url}) already exist in wallet {alias_wallet_file_path}")
+    raise Exception(f"alias {alias_name} ({alias_wallet.aliases[alias_name].repository_uri}) already exist in wallet {alias_wallet_file_path}")
   
-  alias_wallet.aliases[alias_name] = Alias(alias_name, repository_url)
+  alias_wallet.aliases[alias_name] = Alias(alias_name, repository_uri)
 
   save_alias_wallet_to(alias_wallet_file_path, alias_wallet)
 
@@ -39,11 +39,11 @@ def _rm_alias(options : OrcaOptions) -> bool :
   if not alias_name in alias_wallet.aliases:
     raise Exception(f"wallet {alias_wallet_file_path} does not contain alias {alias_name}")
   
-  old_repository_url = alias_wallet.aliases[alias_name].repository_url 
+  old_repository_uri = alias_wallet.aliases[alias_name].repository_uri 
   del alias_wallet.aliases[alias_name]
   
   save_alias_wallet_to(alias_wallet_file_path, alias_wallet)
-  options["logger"].success(f"removed alias {alias_name} ({old_repository_url}) from wallet {alias_wallet_file_path}")
+  options["logger"].success(f"removed alias {alias_name} ({old_repository_uri}) from wallet {alias_wallet_file_path}")
 
   return True
 
@@ -54,7 +54,7 @@ def _list_alias(options : OrcaOptions) -> bool :
   alias_count = len(alias_wallet.aliases.keys())
   options["logger"].info(f"wallet {alias_wallet_file_path} ({alias_count} {'entry' if alias_count <= 1 else 'entries'})")
   for alias_name in alias_wallet.aliases.keys():
-    print(f"{alias_name} -> {alias_wallet.aliases[alias_name].repository_url}")
+    print(f"{alias_name} -> {alias_wallet.aliases[alias_name].repository_uri}")
   
   return True
 

@@ -9,7 +9,7 @@ class OrcaCommandOptions (TypedDict):
 
 class OrcaCloneOptions (OrcaCommandOptions) :
   name: Literal["clone"]
-  repository_url: str
+  repository_uri: str
   out_dir: str
   unsafe_mode: bool
   alias_wallet_file_path: str
@@ -17,7 +17,7 @@ class OrcaCloneOptions (OrcaCommandOptions) :
 def NewOrcaCloneOptions(base_clone_options : OrcaCloneOptions) -> OrcaCloneOptions :
   return {
     "name": "clone",
-    "repository_url": base_clone_options["repository_url"],
+    "repository_uri": base_clone_options["repository_uri"],
     "out_dir": abspath(base_clone_options["out_dir"]) if not base_clone_options.get("out_dir") is None else None,
     "unsafe_mode": base_clone_options.get("unsafe_mode", False),
     "alias_wallet_file_path": abspath(base_clone_options["alias_wallet_file_path"]) if not base_clone_options.get("alias_wallet_file_path") is None else abspath(join(__file__, "..", "..", "..", ".aliases"))
@@ -40,7 +40,7 @@ class OrcaAliasAction (TypedDict) :
 class OrcaAliasAddAction (OrcaAliasAction) :
   name: Literal["add"]
   alias: str
-  repository_url: str
+  repository_uri: str
 
 class OrcaAliasRmAction (OrcaAliasAction) :
   name: Literal["rm"]
@@ -58,7 +58,7 @@ def NewOrcaAliasAction(name : str, validated_args : Any) -> OrcaAliasAction :
       return OrcaAliasAddAction({
         "name": "add",
         "alias": validated_args.alias,
-        "repository_url": validated_args.repository_url
+        "repository_uri": validated_args.repository_uri
       })
     case "rm":
       return OrcaAliasRmAction({

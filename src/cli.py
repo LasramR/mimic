@@ -16,7 +16,7 @@ def main():
   sub_parser = arg_parser.add_subparsers(dest="command", required=True)
   
   clone_parser = sub_parser.add_parser("clone", description="clone repository")
-  clone_parser.add_argument("repository_url", type=str, help="URL of the repository to clone")
+  clone_parser.add_argument("repository_uri", type=str, help="URI of the repository to clone")
   clone_parser.add_argument("out_dir", type=str, help="Specify the output directory", nargs='?')
   clone_parser.add_argument("-u", "--unsafe", action="store_true", help="Enable unsafe mode, hooks will run without user confirmation")
   clone_parser.add_argument("-f", "--file", help="Specify orca wallet file to use")
@@ -30,7 +30,7 @@ def main():
 
   alias_add_parser = alias_action_sub_parser.add_parser("add", description="add an alias")
   alias_add_parser.add_argument("alias", type=str, help="alias name")
-  alias_add_parser.add_argument("repository_url", type=str, help="repository url")
+  alias_add_parser.add_argument("repository_uri", type=str, help="repository uri")
   alias_add_parser.add_argument("-f", "--file", help="Specify orca wallet file to use")
 
   alias_rm_parser = alias_action_sub_parser.add_parser("rm", description="remove an alias")
@@ -53,7 +53,7 @@ def main():
     case "clone":
       command_options = NewOrcaCloneOptions({
         "out_dir": args.out_dir,
-        "repository_url": args.repository_url,
+        "repository_uri": args.repository_uri,
         "unsafe_mode": args.unsafe,
         "alias_wallet_file_path": args.file
       })
