@@ -31,7 +31,7 @@ class AliasWallet:
 
       self.aliases[name] = Alias(name, repository_url)
 
-def alias_wallet_exist(alias_wallet_file_path : str) -> None :
+def alias_wallet_exist(alias_wallet_file_path : str) -> bool :
   return exists(alias_wallet_file_path)
 
 def save_alias_wallet_to(alias_wallet_file_path : str, alias_wallet : Union[AliasWallet, None]) -> bool :
@@ -54,3 +54,18 @@ def get_alias_wallet_from(alias_wallet_file_path : str) -> AliasWallet :
   
   with open(alias_wallet_file_path, "r") as fd:
     return AliasWallet(fd.readlines())
+
+def resolve_alias_repository_url_from(alias_wallet_file_path : str, alias_name : str) -> str :
+  """
+  If no matching alias is found, return alias as the repository url
+  """
+
+  if not alias_wallet_exist(alias_wallet_file_path):
+    return alias_name
+  
+  alias_wallet = get_alias_wallet_from(alias_wallet_file_path)
+
+  if not alias_name in alias_wallet.aliases:
+    return alias_name
+  
+  return alias_wallet.aliases[alias_name].repository_url

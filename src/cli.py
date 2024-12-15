@@ -19,27 +19,32 @@ def main():
   clone_parser.add_argument("repository_url", type=str, help="URL of the repository to clone")
   clone_parser.add_argument("out_dir", type=str, help="Specify the output directory", nargs='?')
   clone_parser.add_argument("-u", "--unsafe", action="store_true", help="Enable unsafe mode, hooks will run without user confirmation")
+  clone_parser.add_argument("-f", "--file", help="Specify orca wallet file to use")
+
 
   lint_parser = sub_parser.add_parser("lint", description="lint orca template")
   lint_parser.add_argument("project_dir", type=str, help="Specify the orca project directory", nargs='?')
 
   alias_parser = sub_parser.add_parser("alias", description="alias")
-  alias_parser.add_argument("-f", "--file", help="Specify orca configuration file to use")
   alias_action_sub_parser = alias_parser.add_subparsers(dest="action", required=True)
 
   alias_add_parser = alias_action_sub_parser.add_parser("add", description="add an alias")
   alias_add_parser.add_argument("alias", type=str, help="alias name")
   alias_add_parser.add_argument("repository_url", type=str, help="repository url")
+  alias_add_parser.add_argument("-f", "--file", help="Specify orca wallet file to use")
 
   alias_rm_parser = alias_action_sub_parser.add_parser("rm", description="remove an alias")
   alias_rm_parser.add_argument("alias", type=str, help="alias name")
+  alias_rm_parser.add_argument("-f", "--file", help="Specify orca wallet file to use")
 
-  _alias_list_parser = alias_action_sub_parser.add_parser("list", description="list alias")
-  _alias_init_parser = alias_action_sub_parser.add_parser("init", description="init new alias wallet")
+  alias_list_parser = alias_action_sub_parser.add_parser("list", description="list alias")
+  alias_list_parser.add_argument("-f", "--file", help="Specify orca wallet file to use")
+  
+  alias_init_parser = alias_action_sub_parser.add_parser("init", description="init new alias wallet")
+  alias_init_parser.add_argument("-f", "--file", help="Specify orca wallet file to use")
 
   init_parser = sub_parser.add_parser("init", description="setup a new orca project template")
   init_parser.add_argument("project_dir", type=str, help="Specify the orca project directory", nargs='?')
-
 
   args = arg_parser.parse_args()
 
@@ -49,7 +54,8 @@ def main():
       command_options = NewOrcaCloneOptions({
         "out_dir": args.out_dir,
         "repository_url": args.repository_url,
-        "unsafe_mode": args.unsafe
+        "unsafe_mode": args.unsafe,
+        "alias_wallet_file_path": args.file
       })
     case "lint":
       command_options = NewOrcaLintOptions({
@@ -58,7 +64,7 @@ def main():
     case "alias": 
       command_options = NewOrcaAliasOptions({
       "action": NewOrcaAliasAction(args.action, args),
-      "orca_config_file_path": args.file
+      "alias_wallet_file_path": args.file
     })
     case "init":
       command_options = NewOrcaInitOptions({
