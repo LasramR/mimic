@@ -76,11 +76,10 @@ The following sections covers the usage of the `.mimic.json` file.
 
 First of all, let's clarify what do we call a *variable* :
 
-```md
-A variable is a name defined in the `.mimic.json`. 
-When generating a mimic from a template, the user will be prompted to indicate which value to associate with the variable.
-This value will be used by the mimic CLI to perform substitution of the variable name by the user.
-```
+--- 
+A variable is a name defined in the `.mimic.json`. When generating a mimic from a template, the user will be prompted to indicate which value to associate with the variable. This value will be used by the mimic CLI to perform substitution of the variable name by the user.
+
+---
 
 Ok, but where can we use variables :
 * inside a file (ie the file content)
