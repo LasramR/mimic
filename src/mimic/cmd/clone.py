@@ -42,28 +42,28 @@ def clone(options : MimicOptions) -> bool :
   if options['command']["name"] != "clone":
     raise Exception("clone: invalid options")
   
-  alias = options["command"]["repository_uri"]
-  repository_uri = alias_wallet.resolve_alias_repository_uri_from(options["command"]["alias_wallet_file_path"], alias)
+  alias = options["command"]["mimic_uri"]
+  mimic_uri = alias_wallet.resolve_alias_mimic_uri_from(options["command"]["alias_wallet_file_path"], alias)
 
-  if alias != repository_uri:
-    options["logger"].info(f"{alias} has been resolved to {repository_uri}")
+  if alias != mimic_uri:
+    options["logger"].info(f"{alias} has been resolved to {mimic_uri}")
 
-  options["logger"].info(f"checking access to repository {repository_uri}")
-  if not cloning.check_access_to_project(repository_uri):
-    raise Exception(f'could not resolve repository {repository_uri}. Are you sure that you have access to the repository ?')
+  options["logger"].info(f"checking access to mimic {mimic_uri}")
+  if not cloning.check_access_to_project(mimic_uri):
+    raise Exception(f'could not resolve mimic {mimic_uri}. Are you sure that you have access to the mimic ?')
 
   options["logger"].success(f"ok")
 
-  project_dir = options["command"].get("out_dir") or abspath(git.repository_name(repository_uri))
+  project_dir = options["command"].get("out_dir") or abspath(git.repository_name(mimic_uri))
 
   if exists(project_dir):
     raise Exception(f"out_dir {project_dir} already exist and cloning into it will fail. cancelling")
 
-  options["logger"].info(f"cloning {repository_uri} in {project_dir}")
-  if not cloning.clone_project(repository_uri, project_dir):
-    raise Exception(f'could not clone repository at "{project_dir}"')
+  options["logger"].info(f"cloning {mimic_uri} in {project_dir}")
+  if not cloning.clone_project(mimic_uri, project_dir):
+    raise Exception(f'could not clone mimic at "{project_dir}"')
 
-  options["logger"].success(f"{repository_uri} cloned")
+  options["logger"].success(f"{mimic_uri} cloned")
 
 
   mimic_config_file_path = fs.resolve_existing_path(fs.get_file_with_extensions(f"{project_dir}{sep}.mimic", ["", ".json", ".jsonc"]))

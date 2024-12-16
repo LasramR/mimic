@@ -1,5 +1,5 @@
 from os import getcwd
-from os.path import abspath, join, dirname
+from os.path import abspath, join, dirname, exists
 from typing import TypedDict, Literal, Union, Any
 
 from .utils.logger import Logger, LoggerOptions
@@ -9,7 +9,7 @@ class MimicCommandOptions (TypedDict):
 
 class MimicCloneOptions (MimicCommandOptions) :
   name: Literal["clone"]
-  repository_uri: str
+  mimic_uri: str
   out_dir: str
   unsafe_mode: bool
   alias_wallet_file_path: str
@@ -17,10 +17,10 @@ class MimicCloneOptions (MimicCommandOptions) :
 def NewMimicCloneOptions(base_clone_options : MimicCloneOptions) -> MimicCloneOptions :
   return {
     "name": "clone",
-    "repository_uri": base_clone_options["repository_uri"],
+    "mimic_uri": base_clone_options["mimic_uri"],
     "out_dir": abspath(base_clone_options["out_dir"]) if not base_clone_options.get("out_dir") is None else None,
     "unsafe_mode": base_clone_options.get("unsafe_mode", False),
-    "alias_wallet_file_path": abspath(base_clone_options["alias_wallet_file_path"]) if not base_clone_options.get("alias_wallet_file_path") is None else abspath(join(dirname(__file__), "..", "..", "aliases.mimic"))
+    "alias_wallet_file_path": abspath(base_clone_options["alias_wallet_file_path"]) if not base_clone_options.get("alias_wallet_file_path") is None else abspath(join(dirname(__file__), "..", "..", "wallet.mimic"))
 
    }
 
@@ -40,7 +40,7 @@ class MimicAliasAction (TypedDict) :
 class MimicAliasAddAction (MimicAliasAction) :
   name: Literal["add"]
   alias: str
-  repository_uri: str
+  mimic_uri: str
 
 class MimicAliasRmAction (MimicAliasAction) :
   name: Literal["rm"]
@@ -58,7 +58,7 @@ def NewMimicAliasAction(name : str, validated_args : Any) -> MimicAliasAction :
       return MimicAliasAddAction({
         "name": "add",
         "alias": validated_args.alias,
-        "repository_uri": validated_args.repository_uri
+        "mimic_uri": abspath(validated_args.mimic_uri) if exists(validated_args.mimic_uri) else validated_args.mimic_uri
       })
     case "rm":
       return MimicAliasRmAction({
@@ -86,7 +86,7 @@ def NewMimicAliasOptions(base_alias_options : MimicAliasOptions) -> MimicAliasOp
   return {
     "name": "alias",
     "action": base_alias_options["action"],
-    "alias_wallet_file_path": abspath(base_alias_options["alias_wallet_file_path"]) if not base_alias_options.get("alias_wallet_file_path") is None else abspath(join(dirname(__file__), "..", "..", "aliases.mimic"))
+    "alias_wallet_file_path": abspath(base_alias_options["alias_wallet_file_path"]) if not base_alias_options.get("alias_wallet_file_path") is None else abspath(join(dirname(__file__), "..", "..", "wallet.mimic"))
   }
 
 class MimicInitOptions (MimicCommandOptions):
@@ -112,13 +112,11 @@ def NewMimicPreviewOptions(base_preview_options : MimicPreviewOptions) -> MimicP
 class MimicOptions (TypedDict):
   command: Union[MimicCloneOptions, MimicLintOptions, MimicAliasOptions, MimicInitOptions, MimicPreviewOptions]
   working_dir: str
-  debug: bool
   logger: Logger
 
 def NewMimicOptions(base_options : MimicOptions) -> MimicOptions:
   return {
     "command": base_options["command"],
     "working_dir": getcwd(),
-    "debug": base_options.get("debug", False),
     "logger": base_options.get("logger", Logger(LoggerOptions.DefaultWithName("mimic")))
   }

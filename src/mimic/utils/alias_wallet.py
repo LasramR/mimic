@@ -5,12 +5,12 @@ from typing import List, Dict, Union
 
 class Alias:
 
-  def __init__(self, name : str, repository_uri : str):
+  def __init__(self, name : str, mimic_uri : str):
     self.name = name
-    self.repository_uri = repository_uri
+    self.mimic_uri = mimic_uri
 
 alias_name_regex = r"^[a-zA-Z_-]+$"
-alias_regex = r"^\s*(?P<name>[a-zA-Z_-]+)\s+(?P<repository_uri>[^\s]+)\s*$"
+alias_regex = r"^\s*(?P<name>[a-zA-Z_-]+)\s+(?P<mimic_uri>[^\s]+)\s*$"
 
 class AliasWallet:
 
@@ -24,12 +24,12 @@ class AliasWallet:
       if groups == None:
         continue
 
-      name, repository_uri = groups.group("name"), groups.group("repository_uri")
+      name, mimic_uri = groups.group("name"), groups.group("mimic_uri")
 
-      if name == None or repository_uri == None:
+      if name == None or mimic_uri == None:
         continue
 
-      self.aliases[name] = Alias(name, repository_uri)
+      self.aliases[name] = Alias(name, mimic_uri)
 
 def alias_wallet_exist(alias_wallet_file_path : str) -> bool :
   return exists(alias_wallet_file_path)
@@ -42,7 +42,7 @@ def save_alias_wallet_to(alias_wallet_file_path : str, alias_wallet : Union[Alia
         return True
       
       for alias_name in alias_wallet.aliases.keys():
-        fd.write(f"{alias_wallet.aliases[alias_name].name} {alias_wallet.aliases[alias_name].repository_uri}{linesep}")
+        fd.write(f"{alias_wallet.aliases[alias_name].name} {alias_wallet.aliases[alias_name].mimic_uri}{linesep}")
       
       return True
   except:
@@ -55,9 +55,9 @@ def get_alias_wallet_from(alias_wallet_file_path : str) -> AliasWallet :
   with open(alias_wallet_file_path, "r") as fd:
     return AliasWallet(fd.readlines())
 
-def resolve_alias_repository_uri_from(alias_wallet_file_path : str, alias_name : str) -> str :
+def resolve_alias_mimic_uri_from(alias_wallet_file_path : str, alias_name : str) -> str :
   """
-  If no matching alias is found, return alias as the repository uri
+  If no matching alias is found, return alias as the mimic uri
   """
 
   if not alias_wallet_exist(alias_wallet_file_path):
@@ -68,4 +68,4 @@ def resolve_alias_repository_uri_from(alias_wallet_file_path : str, alias_name :
   if not alias_name in alias_wallet.aliases:
     return alias_name
   
-  return alias_wallet.aliases[alias_name].repository_uri
+  return alias_wallet.aliases[alias_name].mimic_uri

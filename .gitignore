@@ -6,7 +6,7 @@ __pycache__/
 
 # CLI artifacts
 tmp/
-aliases.mimic
+wallet.mimic
 .mimic.json
 
 # IDE
