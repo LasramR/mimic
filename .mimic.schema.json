@@ -10,14 +10,15 @@
       "type": "string"
     },
     "git": {
-      "description": "Git integration",
+      "description": "Set of properties to initialize a git repository in a mimic",
       "type": "object",
       "properties": {
         "enabled": {
+          "description": "Wether mimic should initialize a git repository",
           "type": "boolean"
         },
         "main_branch": {
-          "description": "The main branch of the newly initialize git project",
+          "description": "The main branch of the mimic",
           "type": "string"
         }
       },
@@ -25,26 +26,27 @@
       "additionalProperties": false
     },
     "template": {
-      "description": "Template things",
+      "description": "Set of properties to configure a mimic template",
       "type": "object",
       "properties": {
         "variables": {
-          "description": "",
+          "description": "Named inputs that will be prompted to the user and substituted in template files, hooks, and paths",
           "type": "object",
           "additionalProperties": {
             "type": "object",
+            "description": "A template variable",
             "properties": {
-              "description": { 
+              "description": {
+                "description": "Additionnal message displayed to the user when prompted for the variable value", 
                 "type": "string"
               },
               "type": {
+                "description": "Constrains user input",
                 "type": "string",
                 "enum": ["string", "number", "boolean", "regex", "choice"]
               },
-              "item": {
-                "description": "type qualifier"
-              },
-              "required": { 
+              "required": {
+                "description": "Wether the user must specify a valid value",
                 "type": "boolean"
               }
             },
@@ -55,12 +57,13 @@
                   "properties": { "type": { "const": "regex" } }
                 },
                 "then": {
-                  "required": ["item"],
                   "properties": {
                     "item": {
+                      "description": "Python regex that constrains the accepted value",
                       "type": "string"
                     }
-                  }
+                  },
+                  "required": ["type", "item"]
                 }
               },
               {
@@ -68,16 +71,17 @@
                   "properties": { "type": { "const": "choice" } }
                 },
                 "then": {
-                  "required": ["item"],
                   "properties": {
                     "item": {
+                      "description": "Set of accepted value",
                       "type": "array",
                       "items": {
                         "type": "string"
                       },
                       "minItems": 1
                     }
-                  }
+                  },
+                  "required": ["type", "item"]
                 }
               }
             ]
@@ -87,34 +91,34 @@
       "additionalProperties": false
     },
     "hooks": {
-      "description": "Post installation instructions to trigger after template injection",
+      "description": "List of scripts to trigger at specific times",
       "type": "array",
       "items": {
-        "description": "",
         "type": "object",
         "properties": {
           "name": {
-            "description": "",
+            "description": "Script name",
             "type": "string"
           },
           "when": {
-            "description": "",
+            "description": "Time to trigger the script",
             "type": "string",
             "enum": ["pre_template_injection", "post_template_injection"]
           },
           "steps": {
-            "description": "",
+            "description": "List of commands run by the script",
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "minItems": 1
           },
           "ignore_error": {
-            "description": "",
+            "description": "Whether to continue execution if the script fails",
             "type": "boolean"
           },
           "ignore_user_skip": {
-            "description": "",
+            "description": "Whether to continue execution if the user refuses to run the script",
             "type": "boolean"
           }
         },
