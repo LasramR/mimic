@@ -18,7 +18,14 @@ def init(options : MimicOptions) -> bool:
 
   with open(mimic_config_file_path, "w") as fd:
     fd.write("""{
-  "$schema": "https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.schema.json"
+  "$schema": "https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.schema.json",
+  "git": {
+    "enabled": false
+  },
+  "template": {
+    "variables": {}
+  },
+  "hooks": []
 }""")
   
   options["logger"].success(f"initialized new mimic project template in {project_dir}")
