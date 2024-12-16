@@ -47,16 +47,16 @@ def _inject_dir(source_dir : str, variables : Dict[str, Any]) -> bool:
   except:
     return False
 
-def inject_project(project_dir : str, variables) -> bool :
+def inject_mimic_template(mimic_template_dir : str, variables) -> bool :
   template_file_paths = []
 
-  for root, dirnames, filenames in walk(project_dir):
+  for root, dirnames, filenames in walk(mimic_template_dir):
     for dirname in dirnames:
       if is_template_file(dirname):
         if not _inject_dir(join(root, dirname), variables):
           return False
 
-  for root, dirnames, filenames in walk(project_dir):
+  for root, dirnames, filenames in walk(mimic_template_dir):
     for filename in filenames:
       if is_template_file(filename):
         template_file_paths.append(join(root, filename))
@@ -93,11 +93,11 @@ def _get_variables_from_file(source_file_path : str, variables : Set[MimicVariab
   except Exception as e:
     pass
 
-def get_variables_from_project(project_dir : str) -> Set[MimicVariableReference]:
+def get_variables_from_mimic_template(mimic_template_dir : str) -> Set[MimicVariableReference]:
   variables : Set[MimicVariableReference] = set()
   template_file_paths = []
 
-  for root, dirnames, filenames in walk(project_dir):
+  for root, dirnames, filenames in walk(mimic_template_dir):
     for dirname in dirnames:
       if is_template_file(dirname):
         for v in _get_variables_from(join(root, dirname)):
@@ -117,7 +117,7 @@ def get_variables_from_project(project_dir : str) -> Set[MimicVariableReference]
   
   return variables
 
-def _preview_file(source_file_path : str, variables : Dict[str, Any], project_preview : MimicPreview, project_preview_lock : Lock):
+def _preview_file(source_file_path : str, variables : Dict[str, Any], mimic_template_preview : MimicPreview, mimic_template_preview_lock : Lock):
   try:
     changes : List[MimicFileContentPreview] = []
     with open(source_file_path, "r") as fd:
@@ -131,33 +131,33 @@ def _preview_file(source_file_path : str, variables : Dict[str, Any], project_pr
   
     parsed_file_path = sep.join(map(lambda d : get_file_from_template_file(d), inject_variable(source_file_path, variables).split(sep)))
 
-    with project_preview_lock:
-      project_preview.file_content_preview[source_file_path] = changes
+    with mimic_template_preview_lock:
+      mimic_template_preview.file_content_preview[source_file_path] = changes
       if source_file_path != parsed_file_path:
-        project_preview.file_preview[source_file_path] = parsed_file_path
+        mimic_template_preview.file_preview[source_file_path] = parsed_file_path
   except:
     pass
 
-def preview_project(project_dir : str, variables : Dict[str, Any]) -> MimicPreview:
-  project_preview = MimicPreview()
+def preview_mimic_template(mimic_template_dir : str, variables : Dict[str, Any]) -> MimicPreview:
+  mimic_template_preview = MimicPreview()
   template_file_paths = []
 
-  for root, dirnames, filenames in walk(project_dir):
+  for root, dirnames, filenames in walk(mimic_template_dir):
     for dirname in dirnames:
       if is_template_file(dirname):
-        project_preview.directory_preview[join(root, dirname)] = get_file_from_template_file(inject_variable(join(root, dirname), variables))
+        mimic_template_preview.directory_preview[join(root, dirname)] = get_file_from_template_file(inject_variable(join(root, dirname), variables))
 
     for filename in filenames:
       if is_template_file(filename):
         template_file_paths.append(join(root, filename))
 
-  project_preview_lock = Lock()
+  mimic_template_preview_lock = Lock()
   preview_file_threads = [
-    Thread(target=_preview_file, args=(source_file_path, variables, project_preview, project_preview_lock)) for source_file_path in template_file_paths
+    Thread(target=_preview_file, args=(source_file_path, variables, mimic_template_preview, mimic_template_preview_lock)) for source_file_path in template_file_paths
   ]
   for t in preview_file_threads:
     t.start()
   for t in preview_file_threads:
     t.join()
   
-  return project_preview
+  return mimic_template_preview

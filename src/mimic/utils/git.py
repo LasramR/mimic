@@ -23,13 +23,13 @@ def clone_repository(repository_uri : str, out_dir : str) -> bool :
     stderr=PIPE
   ).returncode == 0
 
-def remove_git_folder(project_dir : str) :
-  rmtree(f"{project_dir}{sep}.git/", ignore_errors=True)
+def remove_git_folder(mimic_template_dir : str) :
+  rmtree(f"{mimic_template_dir}{sep}.git/", ignore_errors=True)
 
-def init_new_repository(project_dir : str, main_branch : str, remote_uri : Union[str, None]) -> bool :
+def init_new_repository(mimic_template_dir : str, main_branch : str, remote_uri : Union[str, None]) -> bool :
   init_cp = run(
     ["git", "init", "-b", main_branch],
-    cwd=project_dir,
+    cwd=mimic_template_dir,
     stdout=PIPE,
     stderr=PIPE
   )
@@ -42,7 +42,7 @@ def init_new_repository(project_dir : str, main_branch : str, remote_uri : Union
   
   add_remote_cp = run(
     ["git", "remote", "add", "origin", remote_uri],
-    cwd=project_dir,
+    cwd=mimic_template_dir,
     stdout=PIPE,
     stderr=PIPE
   )

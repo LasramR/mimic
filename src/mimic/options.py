@@ -26,12 +26,12 @@ def NewMimicCloneOptions(base_clone_options : MimicCloneOptions) -> MimicCloneOp
 
 class MimicLintOptions (MimicCommandOptions) :
   name: Literal["lint"]
-  project_dir: str
+  mimic_template_dir: str
 
 def NewMimicLintOptions(base_lint_options : MimicLintOptions) -> MimicLintOptions :
   return {
     "name": "lint",
-    "project_dir": abspath(base_lint_options["project_dir"]) if not base_lint_options.get("project_dir") is None else getcwd()
+    "mimic_template_dir": abspath(base_lint_options["mimic_template_dir"]) if not base_lint_options.get("mimic_template_dir") is None else getcwd()
    }
 
 class MimicAliasAction (TypedDict) :
@@ -91,22 +91,22 @@ def NewMimicAliasOptions(base_alias_options : MimicAliasOptions) -> MimicAliasOp
 
 class MimicInitOptions (MimicCommandOptions):
   name: Literal["init"]
-  project_dir: str
+  mimic_template_dir: str
 
 def NewMimicInitOptions(base_init_options : MimicInitOptions) -> MimicInitOptions :
   return {
     "name": "init",
-    "project_dir": abspath(base_init_options["project_dir"]) if not base_init_options.get("project_dir") is None else getcwd()
+    "mimic_template_dir": abspath(base_init_options["mimic_template_dir"]) if not base_init_options.get("mimic_template_dir") is None else getcwd()
    }
 
 class MimicPreviewOptions (MimicCommandOptions):
   name: Literal["preview"]
-  project_dir : str
+  mimic_template_dir : str
 
 def NewMimicPreviewOptions(base_preview_options : MimicPreviewOptions) -> MimicPreviewOptions :
   return {
     "name": "preview",
-    "project_dir": abspath(base_preview_options["project_dir"]) if not base_preview_options.get("project_dir") is None else getcwd()
+    "mimic_template_dir": abspath(base_preview_options["mimic_template_dir"]) if not base_preview_options.get("mimic_template_dir") is None else getcwd()
    }
 
 class MimicOptions (TypedDict):

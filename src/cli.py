@@ -22,7 +22,7 @@ def main():
 
 
   lint_parser = sub_parser.add_parser("lint", description="detect errors in your mimic template")
-  lint_parser.add_argument("project_dir", type=str, help="mimic template directory", nargs='?')
+  lint_parser.add_argument("mimic_template_dir", type=str, help="mimic template directory", nargs='?')
 
   alias_parser = sub_parser.add_parser("alias", description="manage your aliases: shortnames pointing to mimic templates")
   alias_action_sub_parser = alias_parser.add_subparsers(dest="action", required=True)
@@ -43,10 +43,10 @@ def main():
   alias_init_parser.add_argument("file", help="specifies where to create a new mimic wallet, defaults to ~/.mimic/wallet.mimic", nargs='?')
 
   init_parser = sub_parser.add_parser("init", description="setup a new mimic template")
-  init_parser.add_argument("project_dir", type=str, help="mimic template directory", nargs='?')
+  init_parser.add_argument("mimic_template_dir", type=str, help="mimic template directory", nargs='?')
 
   preview_parser = sub_parser.add_parser("preview", description="Preview your mimic template")
-  preview_parser.add_argument("project_dir", type=str, help="mimic template directory", nargs='?')
+  preview_parser.add_argument("mimic_template_dir", type=str, help="mimic template directory", nargs='?')
 
   args = arg_parser.parse_args()
 
@@ -61,7 +61,7 @@ def main():
       })
     case "lint":
       command_options = NewMimicLintOptions({
-        "project_dir": args.project_dir
+        "mimic_template_dir": args.mimic_template_dir
       })
     case "alias": 
       command_options = NewMimicAliasOptions({
@@ -70,11 +70,11 @@ def main():
     })
     case "init":
       command_options = NewMimicInitOptions({
-        "project_dir": args.project_dir
+        "mimic_template_dir": args.mimic_template_dir
       })
     case "preview":
       command_options = NewMimicPreviewOptions({
-        "project_dir": args.project_dir
+        "mimic_template_dir": args.mimic_template_dir
       })
     case _ as unknown:
       arg_parser.error(f'unknown command "{unknown}". Use -h,--help for usage information.')

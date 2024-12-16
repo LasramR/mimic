@@ -3,12 +3,12 @@ from os.path import abspath, exists
 from typing import Dict, Any
 
 from ..actions.git import git_action
-from ..actions.template import inject_project
+from ..actions.template import inject_mimic_template
 from ..actions.hook import hook_action
 from ..utils import git, cloning, fs, config, input, alias_wallet
 from ..options import MimicOptions
 
-def _run_hooks(project_dir : str, when : config.MimicHookWhenType, variables: Dict[str, Any], mimic_config : config.MimicConfig, options : MimicOptions) -> bool :
+def _run_hooks(mimic_template_dir : str, when : config.MimicHookWhenType, variables: Dict[str, Any], mimic_config : config.MimicConfig, options : MimicOptions) -> bool :
   hooks = mimic_config.get_hooks_when(when)
   options["logger"].info(f"running '{when}' hooks ({len(hooks)})")
 
@@ -24,7 +24,7 @@ def _run_hooks(project_dir : str, when : config.MimicHookWhenType, variables: Di
 
     hook_result = True
     try:
-      hook_result = hook_action(project_dir, h, variables, options["command"]["unsafe_mode"])
+      hook_result = hook_action(mimic_template_dir, h, variables, options["command"]["unsafe_mode"])
     except:
       if h.ignore_user_skip:
         options["logger"].warn(f"hook '{h.name or '<unnamed hook>'}' skipped")
@@ -49,24 +49,24 @@ def clone(options : MimicOptions) -> bool :
     options["logger"].info(f"{alias} has been resolved to {mimic_uri}")
 
   options["logger"].info(f"checking access to mimic {mimic_uri}")
-  if not cloning.check_access_to_project(mimic_uri):
+  if not cloning.check_access_to_mimic_template(mimic_uri):
     raise Exception(f'could not resolve mimic {mimic_uri}. Are you sure that you have access to the mimic ?')
 
   options["logger"].success(f"ok")
 
-  project_dir = options["command"].get("out_dir") or abspath(git.repository_name(mimic_uri))
+  mimic_template_dir = options["command"].get("out_dir") or abspath(git.repository_name(mimic_uri))
 
-  if exists(project_dir):
-    raise Exception(f"out_dir {project_dir} already exist and cloning into it will fail. cancelling")
+  if exists(mimic_template_dir):
+    raise Exception(f"out_dir {mimic_template_dir} already exist and cloning into it will fail. cancelling")
 
-  options["logger"].info(f"cloning {mimic_uri} in {project_dir}")
-  if not cloning.clone_project(mimic_uri, project_dir):
-    raise Exception(f'could not clone mimic at "{project_dir}"')
+  options["logger"].info(f"cloning {mimic_uri} in {mimic_template_dir}")
+  if not cloning.clone_mimic_template(mimic_uri, mimic_template_dir):
+    raise Exception(f'could not clone mimic at "{mimic_template_dir}"')
 
   options["logger"].success(f"{mimic_uri} cloned")
 
 
-  mimic_config_file_path = fs.resolve_existing_path(fs.get_file_with_extensions(f"{project_dir}{sep}.mimic", ["", ".json", ".jsonc"]))
+  mimic_config_file_path = fs.resolve_existing_path(fs.get_file_with_extensions(f"{mimic_template_dir}{sep}.mimic", ["", ".json", ".jsonc"]))
 
   if mimic_config_file_path == None:
     options["logger"].warn(f"no .mimic(.json)? file has been found: no more work to do. exiting")
@@ -80,28 +80,28 @@ def clone(options : MimicOptions) -> bool :
   fs.remove_ignore(mimic_config_file_path)
 
   if mimic_config.git.enabled:
-    options["logger"].info(f"initializing new git repository in {project_dir} with main_branch={mimic_config.git.main_branch}")
+    options["logger"].info(f"initializing new git repository in {mimic_template_dir} with main_branch={mimic_config.git.main_branch}")
 
-  git_action(project_dir, mimic_config.git)
+  git_action(mimic_template_dir, mimic_config.git)
 
   options["logger"].info(f"collecting user input(s)")
   variables = {}
   for v in mimic_config.template.variables.keys():
     variables[mimic_config.template.variables[v].name] = input.get_user_variable_input(mimic_config.template.variables[v])
 
-  pre_hooks_success = _run_hooks(project_dir, "pre_template_injection", variables, mimic_config, options)
+  pre_hooks_success = _run_hooks(mimic_template_dir, "pre_template_injection", variables, mimic_config, options)
   
   if pre_hooks_success:
-    options["logger"].info(f"generating project")
+    options["logger"].info(f"generating mimic_template")
   else:
-    options["logger"].warn(f'"pre_template_injection" hooks failed, mimic will still generate your project but "post_template_injection" hooks will be skipped')
+    options["logger"].warn(f'"pre_template_injection" hooks failed, mimic will still generate your mimic_template but "post_template_injection" hooks will be skipped')
 
-  inject_project(project_dir, variables)
+  inject_mimic_template(mimic_template_dir, variables)
 
-  options["logger"].success(f"{project_dir} generated")
+  options["logger"].success(f"{mimic_template_dir} generated")
 
   if pre_hooks_success:
-    if not _run_hooks(project_dir, "post_template_injection", variables, mimic_config, options):
+    if not _run_hooks(mimic_template_dir, "post_template_injection", variables, mimic_config, options):
       options["logger"].error(f'"post_template_injection" hooks failed')
       return False
 
