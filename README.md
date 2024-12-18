@@ -440,11 +440,11 @@ These are the command-line options available in Mimic. You can get detailed help
 
 The `.mimic.schema.json` provides a complete reference for the structure and properties of the `.mimic.json` configuration file. The `.mimic.json` is the core of mimic which define your mimic template and the behaviour of mimic CLI when cloning your template.
 
-### `$schema`
+#### `$schema`
 * **Description**: Specifies the schema file to validate against.  
 * **Note**: This property **MUST** be set to `https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.schema.json` for proper validation and autocompletion in your IDE.
 
-### `git`
+#### `git`
 * **Type**: `object`  
 * **Description**: Configuration related to Git repository initialization.  
   * **Properties**:  
@@ -456,7 +456,7 @@ The `.mimic.schema.json` provides a complete reference for the structure and pro
       * **Type**: `string`  
       * **Description**: Specifies the name of the main branch for the repository.  
 
-### `template`
+#### `template`
 * **Type**: `object`  
 * **Description**: Defines the configuration for Mimic templates.  
   * **Properties**:  
@@ -479,7 +479,7 @@ The `.mimic.schema.json` provides a complete reference for the structure and pro
             * if **type** == `regex`: A Python regex defining valid input values.  
             * if **type** == `choice`: A list of accepted values (minimum 1).  
 
-### `hooks`
+#### `hooks`
 * **Type**: `array`  
 * **Description**: Defines scripts triggered at specific times during the execution of a Mimic template.  
   * **Item Properties**:  
@@ -500,7 +500,7 @@ The `.mimic.schema.json` provides a complete reference for the structure and pro
       * **Type**: `boolean`  
       * **Description**: If `true`, execution will continue even if the user opts to skip the script.  
 
-### Additional Properties
+#### Additional Properties
 * **Note**: no additional undefined properties are allowed throughout the schema to enforce strict validation.
 
 ## [Roadmap](#roadmap)
