@@ -45,6 +45,124 @@ By using mimic, you ...
 
 ## [Command line options](#command-line-options)
 
+The following describes the command-line options available in Mimic.
+
+#### `mimic`
+* **Description**: The mimic CLI
+* **Usage**:
+  ```bash
+  mimic {clone,lint,alias,init,preview} ...
+  ```
+
+#### `mimic alias`
+* **Description**: Manage your aliases, which are short names pointing to mimic templates.  
+* **Usage**:  
+  ```bash
+  mimic alias {add,rm,list,init} ...
+  ```
+* `mimic alias add`  
+  * **Description**: Add a new alias to your mimic wallet.  
+  * **Usage**:  
+    ```bash
+    mimic alias add [-f FILE] alias mimic_uri
+    ```
+  * **Arguments**:  
+    * `alias`  
+      * **Type**: `str`  
+      * **Description**: Alias name to add.  
+    * `mimic_uri`  
+      * **Type**: `str`  
+      * **Description**: URI to the mimic template.  
+    * `-f`, `--file`  
+      * **Type**: `str` (optional)  
+      * **Description**: Path to the mimic wallet to use.  
+* `mimic alias init`  
+  * **Description**: Create a new mimic wallet.  
+  * **Usage**:  
+    ```bash
+    mimic alias init [file]
+    ```
+  * **Arguments**:  
+    * `file`  
+      * **Type**: `str` (optional)  
+      * **Description**: Path to create a new mimic wallet, defaults to `~/.mimic/wallet.mimic`.  
+* `mimic alias list`  
+  * **Description**: List aliases from your mimic wallet.  
+  * **Usage**:  
+    ```bash
+    mimic alias list [-f FILE]
+    ```
+  * **Arguments**:  
+    * `-f`, `--file`  
+      * **Type**: `str` (optional)  
+      * **Description**: Path to the mimic wallet to use.  
+* `mimic alias rm`  
+  * **Description**: Remove an alias from your mimic wallet.  
+  * **Usage**:  
+    ```bash
+    mimic alias rm [-f FILE] alias
+    ```
+  * **Arguments**:  
+    * `alias`  
+      * **Type**: `str`  
+      * **Description**: Alias name to remove.  
+    * `-f`, `--file`  
+      * **Type**: `str` (optional)  
+      * **Description**: Path to the mimic wallet to use.  
+
+#### `mimic clone`
+* **Description**: Clone and generate a mimic from a mimic template.  
+* **Usage**:  
+  ```bash
+  mimic clone [-u] [-f FILE] mimic_uri [out_dir]
+  ```
+* **Arguments**:  
+  * `mimic_uri`  
+    * **Type**: `str`  
+    * **Description**: URI to a mimic template (either a git repository or a path to a local mimic template).  
+  * `out_dir`  
+    * **Type**: `str` (optional)  
+    * **Description**: The directory where the mimic template will be output.  
+  * `-u`, `--unsafe`  
+    * **Type**: `toggle`  
+    * **Description**: Enable unsafe mode; hooks will run without user confirmation.  
+  * `-f`, `--file`  
+    * **Type**: `str` (optional)  
+    * **Description**: Path to the mimic wallet to use for resolving aliases.  
+
+#### `mimic init`
+* **Description**: Setup a new mimic template.  
+* **Usage**:  
+  ```bash
+  mimic init [mimic_template_dir]
+  ```
+* **Arguments**:  
+  * `mimic_template_dir`  
+    * **Type**: `str` (optional)  
+    * **Description**: Path to the mimic template directory.  
+
+#### `mimic lint`
+* **Description**: Detect errors in your mimic template.  
+* **Usage**:  
+  ```bash
+  mimic lint [mimic_template_dir]
+  ```
+* **Arguments**:  
+  * `mimic_template_dir`  
+    * **Type**: `str` (optional)  
+    * **Description**: Path to the mimic template directory.  
+
+#### `mimic preview`
+* **Description**: Preview your mimic template.  
+* **Usage**:  
+  ```bash
+  mimic preview [mimic_template_dir]
+  ```
+* **Arguments**:  
+  * `mimic_template_dir`  
+    * **Type**: `str` (optional)  
+    * **Description**: Path to the mimic template directory.
+
 ## [.mimic.json schema references](#mimicjson-schema-references)
 
 The `.mimic.schema.json` provides a complete reference for the structure and properties of the `.mimic.json` configuration file. The `.mimic.json` is the core of mimic which define your mimic template and the behaviour of mimic CLI when cloning your template.

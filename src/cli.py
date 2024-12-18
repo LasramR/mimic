@@ -14,8 +14,8 @@ def main():
 
   sub_parser = arg_parser.add_subparsers(dest="command", required=True)
   
-  clone_parser = sub_parser.add_parser("clone", description="clone and generate a mimic")
-  clone_parser.add_argument("mimic_uri", type=str, help="URI to a mimic template")
+  clone_parser = sub_parser.add_parser("clone", description="clone and generate a mimic from a mimic template")
+  clone_parser.add_argument("mimic_uri", type=str, help="URI to a mimic template (either a git repository or a path to a local mimic template)")
   clone_parser.add_argument("out_dir", type=str, help="mimic output directory", nargs='?')
   clone_parser.add_argument("-u", "--unsafe", action="store_true", help="enable unsafe mode, hooks will run without user confirmation")
   clone_parser.add_argument("-f", "--file", help="mimic wallet to use to resolve alias")
