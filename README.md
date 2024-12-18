@@ -47,6 +47,71 @@ By using mimic, you ...
 
 ## [.mimic.json schema references](#mimicjson-schema-references)
 
+The `.mimic.schema.json` provides a complete reference for the structure and properties of the `.mimic.json` configuration file. The `.mimic.json` is the core of mimic which define your mimic template and the behaviour of mimic CLI when cloning your template.
+
+### `$schema`
+* **Description**: Specifies the schema file to validate against.  
+* **Note**: This property **MUST** be set to `https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.schema.json` for proper validation and autocompletion in your IDE.
+
+### `git`
+* **Type**: `object`  
+* **Description**: Configuration related to Git repository initialization.  
+  * **Properties**:  
+    * `enabled`:  
+      * **Type**: `boolean`  
+      * **Description**: Determines if Mimic should initialize a Git repository.  
+      * **Required**: Yes  
+    * `main_branch`:  
+      * **Type**: `string`  
+      * **Description**: Specifies the name of the main branch for the repository.  
+
+### `template`
+* **Type**: `object`  
+* **Description**: Defines the configuration for Mimic templates.  
+  * **Properties**:  
+    * `variables`:  
+      * **Type**: `object`  
+      * **Description**: Contains named inputs prompted to users, substituted into files, paths, or commands.  
+      * **Additional Properties**:  
+        * Each variable is an object with the following properties:  
+          * `description`:  
+            * **Type**: `string`  
+            * **Description**: A message displayed to users when prompting for input.  
+          * `type`:  
+            * **Type**: `string`  
+            * **Description**: Constrains the type of user input.  
+            * **Allowed Values**: `"string"`, `"number"`, `"boolean"`, `"regex"`, `"choice"`.  
+          * `required`:  
+            * **Type**: `boolean`  
+            * **Description**: Indicates whether the variable must have a valid value.  
+          * `item` (conditional):  
+            * if **type** == `regex`: A Python regex defining valid input values.  
+            * if **type** == `choice`: A list of accepted values (minimum 1).  
+
+### `hooks`
+* **Type**: `array`  
+* **Description**: Defines scripts triggered at specific times during the execution of a Mimic template.  
+  * **Item Properties**:  
+    * `name`:  
+      * **Type**: `string`  
+      * **Description**: The name of the script.  
+    * `when`:  
+      * **Type**: `string`  
+      * **Description**: Specifies when the script should run.  
+      * **Allowed Values**: `"pre_template_injection"`, `"post_template_injection"`.  
+    * `steps`:  
+      * **Type**: `array`  
+      * **Description**: A list of commands executed by the script. Must contain at least one command.  
+    * `ignore_error`:  
+      * **Type**: `boolean`  
+      * **Description**: If `true`, execution will continue even if the script fails.  
+    * `ignore_user_skip`:  
+      * **Type**: `boolean`  
+      * **Description**: If `true`, execution will continue even if the user opts to skip the script.  
+
+### Additional Properties
+* **Note**: no additional undefined properties are allowed throughout the schema to enforce strict validation.
+
 ## [Usage](#usage)
 
 ### Creating a mimic template
@@ -60,11 +125,11 @@ mimic init
 This will create a file named `.mimic.json` in your current folder.
 
 The `.mimic.json` file is the core of mimic, it is used to :
-* define variables in your mimic-template
+* define variables in your mimic template
 * define hooks to trigger when generating a **mimic** (ie a folder structure that has been processed by the mimic CLI) from your mimic template
 * integrate git in your mimic
 
-See [Command line options](#command-line-options) for additionnal information about the `mimic init` command.
+See [Command line options](#command-line-options) for additional information about the `mimic init` command.
 
 ### [Variables](#variables)
 
@@ -72,7 +137,7 @@ A variable is a name defined in the `.mimic.json`. When generating a mimic from 
 
 #### [Defining variables](#defining-variables)
 
-In the `.mimic.json` file, add an object (`{ ... }`) property with the name of your variable in the "template"."variables" property. For example :
+In the `.mimic.json` file, add an object (`{ ... }`) property with the name of your variable in the "template"."variables" property. For example:
 
 ```jsonc
 // .mimic.json
@@ -90,17 +155,17 @@ In the `.mimic.json` file, add an object (`{ ... }`) property with the name of y
 }
 ```
 
-Then, set up its properties to define constraints on the user input (See [.mimic.json schema references](#mimicjson-schema-references)).
+Then, set up its properties to define constraints on the user input (see [.mimic.json schema references](#mimicjson-schema-references)).
 
 #### [Using variables](#using-variables)
 
-A variables can be referenced in your mimic template using the mustache (`{{ _ }}`) syntax. You can reference your variables in :
+A variable can be referenced in your mimic template using the mustache (`{{ _ }}`) syntax. You can reference your variables in :
 * **file content**, insert variable values directly into file contents.
 * **file name**, use variables to dynamically define file names.
 * **directory name**, dynamically set directory names using variables.
-* **hooks commands**, run dynamic commands by referencing variables in hook "steps" property (see [Hooks](#hooks))
+* **hooks commands**, run dynamic commands by referencing variables in the hook "steps" property (see [Hooks](#hooks))
 
-Examples :
+Examples:
 
 * In file content:
 
@@ -141,7 +206,7 @@ src/lib/{{ <Your variable >}}/
 
 #### [Escaping variables](#escaping-variables)
 
-If for some reasons, you actually need a mustache-like string in your template (eg a mustache template file), you can escape variables by mustaching the mustaches (`{{ {{ _ }} }}`). For example :
+If for some reason, you actually need a mustache-like string in your template (eg a mustache template file), you can escape variables by mustaching the mustaches (`{{ {{ _ }} }}`). For example:
 
 ```ts
 // main.ts
@@ -149,7 +214,7 @@ const myMustacheTemplatedString = "Hello {{ {{ user_name }} }}"
 console.log(myMustacheTemplatedString);
 ```
 
-When processed by the mimic CLI (ie when cloning your mimic template), the file will contain :
+When processed by the mimic CLI (ie when cloning your mimic template), the file will contain:
 
 ```ts
 // main.ts
@@ -163,15 +228,15 @@ WIP
 
 #### [More on variables](#more-on-variables)
 
-* When cloning your mimic template, if the mimic CLI encounter an undefined variable, it will replace it with an empty string. You can detect dangling variables with the mimic linter (See [Linter](#linter)).
+* When cloning your mimic template, if the mimic CLI encounters an undefined variable, it will replace it with an empty string. You can detect dangling variables with the mimic linter (see [Linter](#linter)).
 
 ### [Hooks](#hooks)
 
-An hook is a list of commands that will be triggered by the mimic CLI when cloning a mimic template. Hooks can be triggered at different time during the mimic cloning process (eg before replacing variables in your template, ...).
+A hook is a list of commands that will be triggered by the mimic CLI when cloning a mimic template. Hooks can be triggered at different times during the mimic cloning process (eg before replacing variables in your template, ...).
 
 #### [Defining an hook](#defining-an-hook)
 
-In the `.mimic.json` file, add an object (`{ ... }`) in the "hooks" array. For example :
+In the `.mimic.json` file, add an object (`{ ... }`) in the "hooks" array. For example:
 
 ```jsonc
 // .mimic.json
@@ -185,85 +250,86 @@ In the `.mimic.json` file, add an object (`{ ... }`) in the "hooks" array. For e
 }
 ```
 
-Then, set up its properties to define the hook behaviour (See [.mimic.json schema references](#mimicjson-schema-references)).
+Then, set up its properties to define the hook behavior (see [.mimic.json schema references](#mimicjson-schema-references)).
 
 #### [More on hooks](#more-on-hooks)
 
-* By default, every command triggered by an hook will require user confirmation, if you want to by pass those confirmation you can the **-u**/**--unsafe** flags to your `mimic clone` command (See [Command line options](#command-line-options)).
-* Hooks will run commands in a subshell, meaning that hooks can perform pretty bad actions on your machine, be careful when cloning unknown mimic templates.
+* By default, every command triggered by a hook will require user confirmation. If you want to bypass those confirmations you can the **-u**/**--unsafe** flag to your `mimic clone` command (see [Command line options](#command-line-options)).
+* Hooks will run commands in a subshell, meaning that hooks can perform pretty bad actions on your machine. Be careful when cloning unknown mimic templates.
 
 ### [Linter](#linter)
 
-The mimic linter is a tool for template creation. It can :
+The mimic linter is a tool for template creation. It can:
 * check if your `.mimic.json` file is valid
 * detect variables in your template that are not referenced in your `.mimic.json` file (ie variables that will be replaced by empty strings)
-* detect variables in your `.mimic.json` file that are not used in your template (ie useless user input) 
+* detect variables in your `.mimic.json` file that are not used in your template (ie useless user inputs) 
 
-To run the mimic linter on your mimic template, in the root folder of your template, run :
+To run the mimic linter on your mimic template, in the root folder of your template, run:
 
 ```bash
 mimic lint
 ```
 
-See [Command line options](#command-line-options) for additionnal information about the `mimic lint` command.
+See [Command line options](#command-line-options) for additional information about the `mimic lint` command.
 
 ### [Previewing your project](#previewing-your-project)
 
-The mimic CLI comes with a tool that allow you to preview what your cloned mimic template will look like. To preview your project, in the root folder of your template, run :
+The mimic CLI comes with a tool that allows you to preview what your cloned mimic template will look like. To preview your project, in the root folder of your template, run:
+
 ```bash
 mimic preview
 ```
 
-Then the mimic CLI will ask for your user inputs and display :
+Then the mimic CLI will ask for your user inputs and display:
 * directory names that will be renamed and their corresponding renamed version
 * file names that will be renamed and their corresponding renamed version
 * file content lines that will be replaced and their corresponding replaced version
 
-See [Command line options](#command-line-options) for additionnal information about the `mimic preview` command.
+See [Command line options](#command-line-options) for additional information about the `mimic preview` command.
 
 ### [Cloning a mimic template](#cloning-a-mimic-template)
 
-Cloning a mimic template will create a mimic ((ie a folder structure that has been processed by the mimic CLI). To clone a mimic, run :
+Cloning a mimic template will create a mimic ((ie a folder structure that has been processed by the mimic CLI). To clone a mimic, run:
 
 ```bash
 mimic clone <mimic template URI>
 ```
 
-The \<mimic template URI> references a mimic template, this can either be :
+The \<mimic template URI> references a mimic template, this can either be:
 * a git repository URL
 * the path to a mimic template on your machine
 
-When cloning a mimic template, the mimic CLI will :
+When cloning a mimic template, the mimic CLI will:
 * ask for user inputs
 * run the "pre_template_injection" hooks
-* process your template files by substituing variables with the corresponding user input
+* process your template files by substituting variables with the corresponding user input
 * run the "post_template_injection" hooks
 
-See [Command line options](#command-line-options) for additionnal information about the `mimic clone` command.
+See [Command line options](#command-line-options) for additional information about the `mimic clone` command.
 
 ### [Mimic aliases](#mimic-aliases)
 
-Mimic aliases are shortnames that can be used with the `mimic clone` command to create mimics. Thus, mimic aliases are shortnames pointing to mimic template URIs.
+Mimic aliases are short names that can be used with the `mimic clone` command to create mimics. Thus, mimic aliases are short names pointing to mimic template URIs.
 
 #### [Adding a mimic alias](#adding-a-mimic-alias)
 
-To add a mimic alias, run the following command :
+To add a mimic alias, run the following command:
 
 ```bash
 mimic alias add <alias name> <mimic template URI>
 ```
 
-The \<mimic template URI> references a mimic template, this can either be :
+The \<mimic template URI> references a mimic template, this can either be:
 * a git repository URL
 * the path to a mimic template on your machine
 
 This will add an **unencrypted** entry in your mimic wallet (see [Mimic aliases wallet](#mimic-aliases-wallet)).
 
-See [Command line options](#command-line-options) for additionnal information about the `mimic alias add` command.
+See [Command line options](#command-line-options) for additional information about the `mimic alias add` command.
 
 #### [Removing a mimic alias](#removing-a-mimic-alias)
 
-To remove a mimic alias, run the following command : 
+To remove a mimic alias, run the following command: 
 
 ```bash
 mimic alias rm <alias name>
@@ -271,11 +337,11 @@ mimic alias rm <alias name>
 
 This will remove an entry from your mimic wallet (see [Mimic aliases wallet](#mimic-aliases-wallet)).
 
-See [Command line options](#command-line-options) for additionnal information about the `mimic alias rm` command.
+See [Command line options](#command-line-options) for additional information about the `mimic alias rm` command.
 
 #### [Listing your mimic aliases](#listing-your-mimic-aliases)
 
-To list your mimic aliases, run the following command : 
+To list your mimic aliases, run the following command: 
 
 ```
 mimic alias list
@@ -283,11 +349,11 @@ mimic alias list
 
 This will list all entries from your mimic wallet (see [Mimic aliases wallet](#mimic-aliases-wallet)).
 
-See [Command line options](#command-line-options) for additionnal information about the `mimic alias list` command.
+See [Command line options](#command-line-options) for additional information about the `mimic alias list` command.
 
 #### [Using a mimic alias](#using-a-mimic-alias)
 
-To use a mimic alias, when running the `mimic clone` command, instead of specifying the \<mimic template URI>, you can specify your mimic alias name. For example :
+To use a mimic alias, when running the `mimic clone` command, instead of specifying the \<mimic template URI>, you can specify your mimic alias name. For example:
 
 ```bash
 mimic clone my-alias
@@ -297,17 +363,17 @@ Will run the `mimic clone` command as usual. However, when looking for the \<mim
 
 If an alias is found, then mimic will clone the corresponding \<mimic template URI> of the alias.
 
-See [Command line options](#command-line-options) for additionnal information about the `mimic clone` command.
+See [Command line options](#command-line-options) for additional information about the `mimic clone` command.
 
 #### [Mimic aliases wallet](#mimic-aliases-wallet)
 
-A mimic alias wallet is a file used by the mimic CLI to store your aliases. By default, this file is located at `~/.mimic/wallet.mimic`, if not, run the following command to create one :
+A mimic alias wallet is a file used by the mimic CLI to store your aliases. By default, this file is located at `~/.mimic/wallet.mimic`, if not, run the following command to create one:
 
 ```bash
 mimic alias init
 ```
 
-This file contains all your mimic aliases in the following format :
+This file contains all your mimic aliases in the following format:
 
 ```
 ...
@@ -317,7 +383,7 @@ This file contains all your mimic aliases in the following format :
 
 Keep in mind that **nothing** is encrypted. Thus, if you decide to create an alias to a git repository URL that contains some kind of credentials (access token, user + password, ...), your alias and the git repository URL will be stored in **plain text** in the `wallet.mimic` file.
 
-See [Command line options](#command-line-options) for additionnal information about the `mimic alias init` command.
+See [Command line options](#command-line-options) for additional information about the `mimic alias init` command.
 
 ## [Roadmap](#roadmap)
 
