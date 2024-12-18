@@ -41,19 +41,19 @@ However, it's important to note that Mimic is specifically designed for template
 
 ### [Ubuntu, Debian](#ubuntu-debian)
 
-Install Python (skip if you already have it installed):
+Install Python (if not already installed):
 ```bash
 sudo apt update && sudo apt install python3
 ```
 
-Install pipx (skip if you already have it installed):
+Install pipx (if not already installed):
 ```bash
 sudo apt install pipx && pipx ensurepath
 ```
 
 Install mimic:
 ```bash
-git clone https://github.com/LasramR/mimic.git ~/.mimic && pipx install -e 
+git clone https://github.com/LasramR/mimic.git ~/.mimic && pipx install -e ~/.mimic
 ```
 
 Open a new shell session and running `mimic -h` should output:
@@ -65,10 +65,10 @@ usage: mimic [-h] {clone,lint,alias,init,preview} ...
 
 ### [Windows](#windows)
 
-Install Python (skip if you already have it installed):
-* download the latest release of Python from [python.org](https://www.python.org/downloads/windows/)* 
+Install Python (if not already installed):
+* download the latest release of Python from [python.org](https://www.python.org/downloads/windows/)
 
-Install pipx (skip if you already have it installed):
+Install pipx (if not already installed):
 ```bash
 # If you installed python using Microsoft Store, replace `py` with `python3` in the next line.
 py -m pip install --user pipx
@@ -76,7 +76,7 @@ py -m pip install --user pipx
 
 Install mimic (through powershell):
 ```bash
-git clone https://github.com/LasramR/mimic.git "$($env:USERPROFILE)\\.mimic" && pipx install -e 
+git clone https://github.com/LasramR/mimic.git "$($env:USERPROFILE)\\.mimic" && pipx install -e "$($env:USERPROFILE)\\.mimic" 
 ```
 
 Open a new powershell session and running `mimic -h` should output:
