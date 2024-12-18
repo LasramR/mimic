@@ -11,7 +11,6 @@ However, it's important to note that Mimic is specifically designed for template
 ## Table of content
 
 1. [Installation](#installation) 
-    1. [Prerequisites](#prerequisites)
     1. [Ubuntu, Debian](#ubuntu-debian)
     1. [Windows](#windows)
 1. [Usage](#usage)
@@ -40,11 +39,59 @@ However, it's important to note that Mimic is specifically designed for template
 
 ## [Installation](#installation)
 
-### [Prerequisites](#prerequisites)
-
 ### [Ubuntu, Debian](#ubuntu-debian)
 
+Install Python (skip if you already have it installed):
+```bash
+sudo apt update && sudo apt install python3
+```
+
+Install pipx (skip if you already have it installed):
+```bash
+sudo apt install pipx && pipx ensurepath
+```
+
+Install mimic:
+```bash
+git clone https://github.com/LasramR/mimic.git ~/.mimic && pipx install -e 
+```
+
+Open a new shell session and running `mimic -h` should output:
+```bash
+usage: mimic [-h] {clone,lint,alias,init,preview} ...
+
+...
+```
+
 ### [Windows](#windows)
+
+Install Python (skip if you already have it installed):
+* download the latest release of Python from [python.org](https://www.python.org/downloads/windows/)* 
+
+Install pipx (skip if you already have it installed):
+```bash
+# If you installed python using Microsoft Store, replace `py` with `python3` in the next line.
+py -m pip install --user pipx
+```
+
+Install mimic (through powershell):
+```bash
+git clone https://github.com/LasramR/mimic.git "$($env:USERPROFILE)\\.mimic" && pipx install -e 
+```
+
+Open a new powershell session and running `mimic -h` should output:
+```bash
+usage: mimic [-h] {clone,lint,alias,init,preview} ...
+
+...
+```
+
+Tips:
+* if you don't have admin privileges on your machine, you can install Python by:
+  * running the installer
+  * uncheck "Use admin privileges when installing py.exe"
+  * check "Add python.exe to PATH"
+  * click "Install Now"
 
 ## [Usage](#usage)
 
