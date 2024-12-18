@@ -12,8 +12,6 @@ By using mimic, you ...
     1. [Prerequisites](#prerequisites)
     1. [Ubuntu, Debian](#ubuntu-debian)
     1. [Windows](#windows)
-1. [Command line options](#command-line-options)
-1. [.mimic.json schema references](#mimicjson-schema-references)
 1. [Usage](#usage)
     1. [Variables](#variables)
         1. [Defining variables](#defining-variables)
@@ -33,6 +31,8 @@ By using mimic, you ...
         1. [Listing your mimic aliases](#listing-your-mimic-aliases)
         1. [Using a mimic alias](#using-a-mimic-alias)
         1. [Mimic aliases wallet](#mimic-aliases-wallet)
+1. [Command line options](#command-line-options)
+1. [.mimic.json schema references](#mimicjson-schema-references)
 1. [Roadmap](#roadmap)
 
 ## [Installation](#installation)
@@ -42,193 +42,6 @@ By using mimic, you ...
 ### [Ubuntu, Debian](#ubuntu-debian)
 
 ### [Windows](#windows)
-
-## [Command line options](#command-line-options)
-
-The following describes the command-line options available in Mimic.
-
-#### `mimic`
-* **Description**: The mimic CLI
-* **Usage**:
-  ```bash
-  mimic {clone,lint,alias,init,preview} ...
-  ```
-
-#### `mimic alias`
-* **Description**: Manage your aliases, which are short names pointing to mimic templates.  
-* **Usage**:  
-  ```bash
-  mimic alias {add,rm,list,init} ...
-  ```
-* `mimic alias add`  
-  * **Description**: Add a new alias to your mimic wallet.  
-  * **Usage**:  
-    ```bash
-    mimic alias add [-f FILE] alias mimic_uri
-    ```
-  * **Arguments**:  
-    * `alias`  
-      * **Type**: `str`  
-      * **Description**: Alias name to add.  
-    * `mimic_uri`  
-      * **Type**: `str`  
-      * **Description**: URI to the mimic template.  
-    * `-f`, `--file`  
-      * **Type**: `str` (optional)  
-      * **Description**: Path to the mimic wallet to use.  
-* `mimic alias init`  
-  * **Description**: Create a new mimic wallet.  
-  * **Usage**:  
-    ```bash
-    mimic alias init [file]
-    ```
-  * **Arguments**:  
-    * `file`  
-      * **Type**: `str` (optional)  
-      * **Description**: Path to create a new mimic wallet, defaults to `~/.mimic/wallet.mimic`.  
-* `mimic alias list`  
-  * **Description**: List aliases from your mimic wallet.  
-  * **Usage**:  
-    ```bash
-    mimic alias list [-f FILE]
-    ```
-  * **Arguments**:  
-    * `-f`, `--file`  
-      * **Type**: `str` (optional)  
-      * **Description**: Path to the mimic wallet to use.  
-* `mimic alias rm`  
-  * **Description**: Remove an alias from your mimic wallet.  
-  * **Usage**:  
-    ```bash
-    mimic alias rm [-f FILE] alias
-    ```
-  * **Arguments**:  
-    * `alias`  
-      * **Type**: `str`  
-      * **Description**: Alias name to remove.  
-    * `-f`, `--file`  
-      * **Type**: `str` (optional)  
-      * **Description**: Path to the mimic wallet to use.  
-
-#### `mimic clone`
-* **Description**: Clone and generate a mimic from a mimic template.  
-* **Usage**:  
-  ```bash
-  mimic clone [-u] [-f FILE] mimic_uri [out_dir]
-  ```
-* **Arguments**:  
-  * `mimic_uri`  
-    * **Type**: `str`  
-    * **Description**: URI to a mimic template (either a git repository or a path to a local mimic template).  
-  * `out_dir`  
-    * **Type**: `str` (optional)  
-    * **Description**: The directory where the mimic template will be output.  
-  * `-u`, `--unsafe`  
-    * **Type**: `toggle`  
-    * **Description**: Enable unsafe mode; hooks will run without user confirmation.  
-  * `-f`, `--file`  
-    * **Type**: `str` (optional)  
-    * **Description**: Path to the mimic wallet to use for resolving aliases.  
-
-#### `mimic init`
-* **Description**: Setup a new mimic template.  
-* **Usage**:  
-  ```bash
-  mimic init [mimic_template_dir]
-  ```
-* **Arguments**:  
-  * `mimic_template_dir`  
-    * **Type**: `str` (optional)  
-    * **Description**: Path to the mimic template directory.  
-
-#### `mimic lint`
-* **Description**: Detect errors in your mimic template.  
-* **Usage**:  
-  ```bash
-  mimic lint [mimic_template_dir]
-  ```
-* **Arguments**:  
-  * `mimic_template_dir`  
-    * **Type**: `str` (optional)  
-    * **Description**: Path to the mimic template directory.  
-
-#### `mimic preview`
-* **Description**: Preview your mimic template.  
-* **Usage**:  
-  ```bash
-  mimic preview [mimic_template_dir]
-  ```
-* **Arguments**:  
-  * `mimic_template_dir`  
-    * **Type**: `str` (optional)  
-    * **Description**: Path to the mimic template directory.
-
-## [.mimic.json schema references](#mimicjson-schema-references)
-
-The `.mimic.schema.json` provides a complete reference for the structure and properties of the `.mimic.json` configuration file. The `.mimic.json` is the core of mimic which define your mimic template and the behaviour of mimic CLI when cloning your template.
-
-### `$schema`
-* **Description**: Specifies the schema file to validate against.  
-* **Note**: This property **MUST** be set to `https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.schema.json` for proper validation and autocompletion in your IDE.
-
-### `git`
-* **Type**: `object`  
-* **Description**: Configuration related to Git repository initialization.  
-  * **Properties**:  
-    * `enabled`:  
-      * **Type**: `boolean`  
-      * **Description**: Determines if Mimic should initialize a Git repository.  
-      * **Required**: Yes  
-    * `main_branch`:  
-      * **Type**: `string`  
-      * **Description**: Specifies the name of the main branch for the repository.  
-
-### `template`
-* **Type**: `object`  
-* **Description**: Defines the configuration for Mimic templates.  
-  * **Properties**:  
-    * `variables`:  
-      * **Type**: `object`  
-      * **Description**: Contains named inputs prompted to users, substituted into files, paths, or commands.  
-      * **Additional Properties**:  
-        * Each variable is an object with the following properties:  
-          * `description`:  
-            * **Type**: `string`  
-            * **Description**: A message displayed to users when prompting for input.  
-          * `type`:  
-            * **Type**: `string`  
-            * **Description**: Constrains the type of user input.  
-            * **Allowed Values**: `"string"`, `"number"`, `"boolean"`, `"regex"`, `"choice"`.  
-          * `required`:  
-            * **Type**: `boolean`  
-            * **Description**: Indicates whether the variable must have a valid value.  
-          * `item` (conditional):  
-            * if **type** == `regex`: A Python regex defining valid input values.  
-            * if **type** == `choice`: A list of accepted values (minimum 1).  
-
-### `hooks`
-* **Type**: `array`  
-* **Description**: Defines scripts triggered at specific times during the execution of a Mimic template.  
-  * **Item Properties**:  
-    * `name`:  
-      * **Type**: `string`  
-      * **Description**: The name of the script.  
-    * `when`:  
-      * **Type**: `string`  
-      * **Description**: Specifies when the script should run.  
-      * **Allowed Values**: `"pre_template_injection"`, `"post_template_injection"`.  
-    * `steps`:  
-      * **Type**: `array`  
-      * **Description**: A list of commands executed by the script. Must contain at least one command.  
-    * `ignore_error`:  
-      * **Type**: `boolean`  
-      * **Description**: If `true`, execution will continue even if the script fails.  
-    * `ignore_user_skip`:  
-      * **Type**: `boolean`  
-      * **Description**: If `true`, execution will continue even if the user opts to skip the script.  
-
-### Additional Properties
-* **Note**: no additional undefined properties are allowed throughout the schema to enforce strict validation.
 
 ## [Usage](#usage)
 
@@ -502,6 +315,193 @@ This file contains all your mimic aliases in the following format:
 Keep in mind that **nothing** is encrypted. Thus, if you decide to create an alias to a git repository URL that contains some kind of credentials (access token, user + password, ...), your alias and the git repository URL will be stored in **plain text** in the `wallet.mimic` file.
 
 See [Command line options](#command-line-options) for additional information about the `mimic alias init` command.
+
+## [Command line options](#command-line-options)
+
+These are the command-line options available in Mimic. You can get detailed help for each command in your terminal by using the `-h` or `--help` flag with the corresponding command.
+
+#### `mimic`
+* **Description**: The mimic CLI
+* **Usage**:
+  ```bash
+  mimic {clone,lint,alias,init,preview} ...
+  ```
+
+#### `mimic alias`
+* **Description**: Manage your aliases, which are short names pointing to mimic templates.  
+* **Usage**:  
+  ```bash
+  mimic alias {add,rm,list,init} ...
+  ```
+* `mimic alias add`  
+  * **Description**: Add a new alias to your mimic wallet.  
+  * **Usage**:  
+    ```bash
+    mimic alias add [-f FILE] alias mimic_uri
+    ```
+  * **Arguments**:  
+    * `alias`  
+      * **Type**: `str`  
+      * **Description**: Alias name to add.  
+    * `mimic_uri`  
+      * **Type**: `str`  
+      * **Description**: URI to the mimic template.  
+    * `-f`, `--file`  
+      * **Type**: `str` (optional)  
+      * **Description**: Path to the mimic wallet to use.  
+* `mimic alias init`  
+  * **Description**: Create a new mimic wallet.  
+  * **Usage**:  
+    ```bash
+    mimic alias init [file]
+    ```
+  * **Arguments**:  
+    * `file`  
+      * **Type**: `str` (optional)  
+      * **Description**: Path to create a new mimic wallet, defaults to `~/.mimic/wallet.mimic`.  
+* `mimic alias list`  
+  * **Description**: List aliases from your mimic wallet.  
+  * **Usage**:  
+    ```bash
+    mimic alias list [-f FILE]
+    ```
+  * **Arguments**:  
+    * `-f`, `--file`  
+      * **Type**: `str` (optional)  
+      * **Description**: Path to the mimic wallet to use.  
+* `mimic alias rm`  
+  * **Description**: Remove an alias from your mimic wallet.  
+  * **Usage**:  
+    ```bash
+    mimic alias rm [-f FILE] alias
+    ```
+  * **Arguments**:  
+    * `alias`  
+      * **Type**: `str`  
+      * **Description**: Alias name to remove.  
+    * `-f`, `--file`  
+      * **Type**: `str` (optional)  
+      * **Description**: Path to the mimic wallet to use.  
+
+#### `mimic clone`
+* **Description**: Clone and generate a mimic from a mimic template.  
+* **Usage**:  
+  ```bash
+  mimic clone [-u] [-f FILE] mimic_uri [out_dir]
+  ```
+* **Arguments**:  
+  * `mimic_uri`  
+    * **Type**: `str`  
+    * **Description**: URI to a mimic template (either a git repository or a path to a local mimic template).  
+  * `out_dir`  
+    * **Type**: `str` (optional)  
+    * **Description**: The directory where the mimic template will be output.  
+  * `-u`, `--unsafe`  
+    * **Type**: `toggle`  
+    * **Description**: Enable unsafe mode; hooks will run without user confirmation.  
+  * `-f`, `--file`  
+    * **Type**: `str` (optional)  
+    * **Description**: Path to the mimic wallet to use for resolving aliases.  
+
+#### `mimic init`
+* **Description**: Setup a new mimic template.  
+* **Usage**:  
+  ```bash
+  mimic init [mimic_template_dir]
+  ```
+* **Arguments**:  
+  * `mimic_template_dir`  
+    * **Type**: `str` (optional)  
+    * **Description**: Path to the mimic template directory.  
+
+#### `mimic lint`
+* **Description**: Detect errors in your mimic template.  
+* **Usage**:  
+  ```bash
+  mimic lint [mimic_template_dir]
+  ```
+* **Arguments**:  
+  * `mimic_template_dir`  
+    * **Type**: `str` (optional)  
+    * **Description**: Path to the mimic template directory.  
+
+#### `mimic preview`
+* **Description**: Preview your mimic template.  
+* **Usage**:  
+  ```bash
+  mimic preview [mimic_template_dir]
+  ```
+* **Arguments**:  
+  * `mimic_template_dir`  
+    * **Type**: `str` (optional)  
+    * **Description**: Path to the mimic template directory.
+
+## [.mimic.json schema references](#mimicjson-schema-references)
+
+The `.mimic.schema.json` provides a complete reference for the structure and properties of the `.mimic.json` configuration file. The `.mimic.json` is the core of mimic which define your mimic template and the behaviour of mimic CLI when cloning your template.
+
+### `$schema`
+* **Description**: Specifies the schema file to validate against.  
+* **Note**: This property **MUST** be set to `https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.schema.json` for proper validation and autocompletion in your IDE.
+
+### `git`
+* **Type**: `object`  
+* **Description**: Configuration related to Git repository initialization.  
+  * **Properties**:  
+    * `enabled`:  
+      * **Type**: `boolean`  
+      * **Description**: Determines if Mimic should initialize a Git repository.  
+      * **Required**: Yes  
+    * `main_branch`:  
+      * **Type**: `string`  
+      * **Description**: Specifies the name of the main branch for the repository.  
+
+### `template`
+* **Type**: `object`  
+* **Description**: Defines the configuration for Mimic templates.  
+  * **Properties**:  
+    * `variables`:  
+      * **Type**: `object`  
+      * **Description**: Contains named inputs prompted to users, substituted into files, paths, or commands.  
+      * **Additional Properties**:  
+        * Each variable is an object with the following properties:  
+          * `description`:  
+            * **Type**: `string`  
+            * **Description**: A message displayed to users when prompting for input.  
+          * `type`:  
+            * **Type**: `string`  
+            * **Description**: Constrains the type of user input.  
+            * **Allowed Values**: `"string"`, `"number"`, `"boolean"`, `"regex"`, `"choice"`.  
+          * `required`:  
+            * **Type**: `boolean`  
+            * **Description**: Indicates whether the variable must have a valid value.  
+          * `item` (conditional):  
+            * if **type** == `regex`: A Python regex defining valid input values.  
+            * if **type** == `choice`: A list of accepted values (minimum 1).  
+
+### `hooks`
+* **Type**: `array`  
+* **Description**: Defines scripts triggered at specific times during the execution of a Mimic template.  
+  * **Item Properties**:  
+    * `name`:  
+      * **Type**: `string`  
+      * **Description**: The name of the script.  
+    * `when`:  
+      * **Type**: `string`  
+      * **Description**: Specifies when the script should run.  
+      * **Allowed Values**: `"pre_template_injection"`, `"post_template_injection"`.  
+    * `steps`:  
+      * **Type**: `array`  
+      * **Description**: A list of commands executed by the script. Must contain at least one command.  
+    * `ignore_error`:  
+      * **Type**: `boolean`  
+      * **Description**: If `true`, execution will continue even if the script fails.  
+    * `ignore_user_skip`:  
+      * **Type**: `boolean`  
+      * **Description**: If `true`, execution will continue even if the user opts to skip the script.  
+
+### Additional Properties
+* **Note**: no additional undefined properties are allowed throughout the schema to enforce strict validation.
 
 ## [Roadmap](#roadmap)
 
