@@ -15,6 +15,7 @@ However, it's important to note that Mimic is specifically designed for template
     1. [Ubuntu, Debian](#ubuntu-debian)
     1. [Windows](#windows)
 1. [Usage](#usage)
+    1. [Creating a mimic template](#creating-a-mimic-template)
     1. [Variables](#variables)
         1. [Defining variables](#defining-variables)
         1. [Using variables](#using-variables)
@@ -47,7 +48,7 @@ However, it's important to note that Mimic is specifically designed for template
 
 ## [Usage](#usage)
 
-### Creating a mimic template
+### [Creating a mimic template](#creating-a-mimic-template)
 
 To create a mimic template, in the root folder of your template, run :
 
