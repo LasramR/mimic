@@ -4,7 +4,9 @@ Mimic is a CLI tool that allows you to easily create project templates (**mimic 
 
 Mimic templates are primarily git-based (ie stored in a git repository), but they can also be stored in a local folder.
 
-By using mimic, you ...
+By using Mimic, you can automate repetitive tasks and save time by quickly generating new projects based on pre-defined templates. Instead of manually setting up your project structure or configurations each time, Mimic handles it for you, allowing you to focus on what matters.
+
+However, it's important to note that Mimic is specifically designed for template purposes and not for generating dynamic code. While Mimic (will) supports conditional rendering in templates, it does not aim to provide the full code generation capabilities of tools like [Cookiecutter](https://github.com/cookiecutter/cookiecutter) or [Copier](https://github.com/copier-org/copier). If your goal is to generate or manipulate code within your templates, you may want to explore those other tools instead.
 
 ## Table of content
 
