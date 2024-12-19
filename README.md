@@ -573,7 +573,6 @@ The `.mimic.schema.json` provides a complete reference for the structure and pro
 
 ### Planned for mimic 0.5.0
 
-* ignorePatterns glob
 * mimic escape command
 * mimic escape --only-undefined
 * mimic lint --fix

@@ -62,13 +62,27 @@ class MimicVariable:
       "default": default
     })
   
-class MimicVariableReference:
+class MimicFileContentPreview:
 
-  def __init__(self, name: str, source_path: str, is_directory : bool = False, is_file = False):
-    self.name = name
-    self.source_path = source_path
-    self.is_directory = is_directory
-    self.is_file = is_file
+  raw : str
+  parsed: str
+  line: int
+
+  def __init__(self, raw : str, parsed: str, line: int):
+    self.raw = raw
+    self.parsed = parsed
+    self.line = line
+
+class MimicPreview:
+
+  directory_preview: Dict[str, str]
+  file_preview: Dict[str, str]
+  file_content_preview: Dict[str, List[MimicFileContentPreview]]
+
+  def __init__(self):
+    self.directory_preview = {}
+    self.file_preview = {}
+    self.file_content_preview = {}
 
 class MimicTemplateConfig:
   ignorePatterns: List[str]
@@ -154,25 +168,3 @@ def load_mimic_config(mimic_config_file_path : str) -> Union[MimicConfig, None]:
       return MimicConfig(mimic_config_file_data)
   except Exception as e:
     return None
-
-class MimicFileContentPreview:
-
-  raw : str
-  parsed: str
-  line: int
-
-  def __init__(self, raw : str, parsed: str, line: int):
-    self.raw = raw
-    self.parsed = parsed
-    self.line = line
-
-class MimicPreview:
-
-  directory_preview: Dict[str, str]
-  file_preview: Dict[str, str]
-  file_content_preview: Dict[str, List[MimicFileContentPreview]]
-
-  def __init__(self):
-    self.directory_preview = {}
-    self.file_preview = {}
-    self.file_content_preview = {}

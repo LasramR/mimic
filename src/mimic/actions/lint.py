@@ -1,12 +1,21 @@
-from os import walk
-from os.path import basename, join, isdir
-from re import finditer
+from os.path import basename, isdir, exists
+from re import finditer, sub
 from threading import Lock, Thread
-from typing import Set
+from shutil import move
+from typing import Set, List, Dict
 
 from .template import extract_variable_name_regex
-from ..utils.config import MimicVariableReference, MimicConfig
+from ..utils.config import MimicConfig, MimicVariable
 from ..utils.fs import ignore_glob
+
+class MimicVariableReference:
+
+  def __init__(self, name: str, source_path: str, line : int = 0, is_directory : bool = False, is_file = False):
+    self.name = name
+    self.source_path = source_path
+    self.line = line
+    self.is_directory = is_directory
+    self.is_file = is_file
 
 def _get_variables_from(template : str) -> Set[str] :
   return {match.group("variable_name") for match in finditer(extract_variable_name_regex, template)}
@@ -15,9 +24,13 @@ def _get_variables_from_file(source_file_path : str, variables : Set[MimicVariab
   try:
     source_variables : Set[MimicVariableReference] = set()
     with open(source_file_path, "r") as fd:
-      for v in _get_variables_from("".join(fd.readlines())):
-        source_variables.add(MimicVariableReference(v, source_file_path))
-    
+      lineno = 1
+      for line in fd:
+        striped_line = line.strip()
+        for v in _get_variables_from(striped_line):
+          source_variables.add(MimicVariableReference(v, source_file_path, lineno))
+        lineno += 1
+      
     for v in _get_variables_from(basename(source_file_path)):
       source_variables.add(MimicVariableReference(v, source_file_path, is_file=True))
     
@@ -47,3 +60,83 @@ def get_variables_from_mimic_template(mimic_template_dir : str, mimic_config : M
     t.join()
   
   return variables
+
+def _escape_undefined_variables(template: str, variables : Dict[str, MimicVariable]) -> str:
+  def _escape_if_undefined(match):
+    variable_name = match.group("variable_name")
+
+    if variables.get(variable_name, None) != None:
+      return f"{{{{ {variable_name} }}}}"
+    
+    return f"{{{{{{{{ {variable_name} }}}}}}}}" # So much mustaches
+  
+  return sub(extract_variable_name_regex, _escape_if_undefined, template)
+
+def _fix_issue(issue : MimicVariableReference, variables : Dict[str, MimicVariable]) -> None :
+  try:
+    issue_file_path = issue.source_path
+    with open(issue_file_path, "r") as fd:
+      fixed_file_content = _escape_undefined_variables("".join(fd.readlines()), variables)
+    
+    with open(issue_file_path, "w") as fd:
+      fd.write(fixed_file_content)
+  except:
+    pass
+
+def fix_mimic_template(undeclared_variables : List[MimicVariableReference], unreferenced_variables : List[str], mimic_config : MimicConfig) -> int:
+  directory_issues : List[MimicVariableReference] = []
+  file_name_issues : List[MimicVariableReference] = []
+
+  resolved_issue_count = 0
+  file_content_fix_issue_threads : List[Thread] = []
+
+  for issue in undeclared_variables:
+    if issue.is_directory:
+      directory_issues.append(issue)
+    if issue.is_file:
+      file_name_issues.append(issue)
+    else:
+      fix_issue_thread = Thread(
+        target=_fix_issue,
+        args=(issue, mimic_config.template.variables)
+      )
+      file_content_fix_issue_threads.append(fix_issue_thread)
+      fix_issue_thread.start()
+      undeclared_variables.remove(issue)
+
+  for t in file_content_fix_issue_threads:
+    t.join()
+    resolved_issue_count += 1  
+
+  for issue in directory_issues:
+    source_dir_path = issue.source_path
+    fixed_dir_path = _escape_undefined_variables(source_dir_path, mimic_config.template.variables)
+    if exists(fixed_dir_path) or len(fixed_dir_path.strip()) == 0:
+      # TODO some sort of mecanism to log that this didn't worked
+      continue
+    move(source_dir_path, fixed_dir_path)
+    undeclared_variables.remove(issue)
+    resolved_issue_count += 1
+  
+  for issue in file_name_issues:
+    source_file_path = issue.source_path
+    fixed_file_path = _escape_undefined_variables(source_file_path, mimic_config.template.variables)
+    if exists(fixed_file_path) or len(fixed_file_path.strip()) == 0:
+      # TODO some sort of mecanism to log that this didn't worked
+      continue
+    move(source_file_path, fixed_file_path)
+    undeclared_variables.remove(issue)
+    resolved_issue_count += 1
+
+  mimic_config_issue_count = len(unreferenced_variables)
+  for variable_name in unreferenced_variables:
+    if variable_name in mimic_config.template.variables:
+      del mimic_config.template.variables[variable_name]
+      unreferenced_variables.remove(variable_name)
+      resolved_issue_count += 1
+  
+  if mimic_config_issue_count != 0 and mimic_config_issue_count != len(unreferenced_variables):
+    # TODO dump new mimic config file
+    pass
+
+  return resolved_issue_count

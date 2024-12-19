@@ -23,6 +23,7 @@ def main():
 
   lint_parser = sub_parser.add_parser("lint", description="detect errors in your mimic template")
   lint_parser.add_argument("mimic_template_dir", type=str, help="mimic template directory", nargs='?')
+  lint_parser.add_argument("--fix", action="store_true", help="automatically fix mimic template issues")
 
   alias_parser = sub_parser.add_parser("alias", description="manage your aliases: shortnames pointing to mimic templates")
   alias_action_sub_parser = alias_parser.add_subparsers(dest="action", required=True)
@@ -61,7 +62,8 @@ def main():
       })
     case "lint":
       command_options = NewMimicLintOptions({
-        "mimic_template_dir": args.mimic_template_dir
+        "mimic_template_dir": args.mimic_template_dir,
+        "fix": args.fix
       })
     case "alias": 
       command_options = NewMimicAliasOptions({
