@@ -1,5 +1,6 @@
-from os import remove
-from os.path import exists
+from os import remove, getcwd
+from os.path import exists, abspath
+from glob import glob
 from typing import List, Union
 
 def resolve_existing_path(possible_paths : List[str]) -> Union[str, None]:
@@ -34,3 +35,17 @@ def remove_ignore(file_path : str) -> None :
     remove(file_path)
   except OSError:
     pass
+
+def ignoreGlob(ignorePatterns : List[str], root_dir : str = getcwd(), absolute_path : bool = False, include_hidden : bool = False) -> List[str]:
+  ignoreMatchs = {}
+  for pattern in ignorePatterns:
+    for file_path in glob(pattern, root_dir=root_dir, include_hidden=include_hidden, recursive=True):
+      ignoreMatchs[file_path] = True
+
+  notIgnoredMatchs = []
+  for file_path in glob("**", root_dir=root_dir, recursive=True, include_hidden=include_hidden):
+    if file_path in ignoreMatchs:
+      continue
+    notIgnoredMatchs.append(abspath(file_path) if absolute_path else file_path)
+
+  return notIgnoredMatchs

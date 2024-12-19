@@ -23,6 +23,7 @@ def init(options : MimicOptions) -> bool:
     "enabled": false
   },
   "template": {
+    "ignorePatterns": [".git/**"],
     "variables": {}
   },
   "hooks": []
