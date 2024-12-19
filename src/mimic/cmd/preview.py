@@ -34,12 +34,12 @@ def preview(options : MimicOptions) -> bool:
   if len(mimic_template_preview.directory_preview.keys()):
     options["logger"].info(f"directory change(s) ({len(mimic_template_preview.directory_preview.keys())})")
   for k in mimic_template_preview.directory_preview.keys():
-    options["logger"].info(f"{k} -> {mimic_template_preview.directory_preview[k]}")
+    print(f"{ColorTable['RED']}{k}{ColorReset} -> {ColorTable['GREEN']}{mimic_template_preview.directory_preview[k]}")
 
   if len(mimic_template_preview.file_preview.keys()):
     options["logger"].info(f"file change(s) ({len(mimic_template_preview.file_preview.keys())})")
   for k in mimic_template_preview.file_preview.keys():
-    options["logger"].info(f"{k} -> {mimic_template_preview.file_preview[k]}")
+    print(f"{ColorTable['RED']}{k}{ColorReset} -> {ColorTable['GREEN']}{mimic_template_preview.file_preview[k]}")
 
   if len(mimic_template_preview.file_content_preview.keys()):
     options["logger"].info(f"content change(s) ({sum([len(mimic_template_preview.file_content_preview[k]) for k in mimic_template_preview.file_content_preview.keys()])})")
