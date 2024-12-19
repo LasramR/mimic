@@ -45,12 +45,12 @@ def lint(options : MimicOptions) -> bool:
     if len(reference_table[k]) == 0:
       unreferenced_variables.append(k)
 
-  if options["command"]["fix"]:
+  if options["command"]["fix"] != None:
     initial_issue_count = len(undeclared_variables) + len(unreferenced_variables)
     if initial_issue_count == 0:
       options["logger"].success(f"no issue to fix in mimic template {mimic_template_dir}")
     else:
-      fix_mimic_template(undeclared_variables, unreferenced_variables, mimic_config_file_path, mimic_config)
+      fix_mimic_template(undeclared_variables, unreferenced_variables, mimic_config_file_path, mimic_config, options["command"]["fix"])
       fixed_issue_count = initial_issue_count - len(undeclared_variables) + len(unreferenced_variables)
       options["logger"].success(f"fixed {fixed_issue_count} / {initial_issue_count} issue(s)")
 

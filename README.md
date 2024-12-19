@@ -573,9 +573,8 @@ The `.mimic.schema.json` provides a complete reference for the structure and pro
 
 ### Planned for mimic 0.5.0
 
-* mimic escape command
-* mimic escape --only-undefined
-* mimic lint --fix
+* mimic lint fix get reason for why it failed
+* mimic preview display hooks that will be triggered
 * Better choice prompt
 
 ### Planned for mimic 1.0.0

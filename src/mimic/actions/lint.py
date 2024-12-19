@@ -2,7 +2,7 @@ from os.path import basename, isdir, exists
 from re import finditer, sub
 from threading import Lock, Thread
 from shutil import move
-from typing import Set, List, Dict
+from typing import Set, List, Dict, Literal
 
 from .template import extract_variable_name_regex
 from ..utils.config import MimicConfig, MimicVariable, overwrite_mimic_config
@@ -61,28 +61,33 @@ def get_variables_from_mimic_template(mimic_template_dir : str, mimic_config : M
   
   return variables
 
-def _escape_undefined_variables(template: str, variables : Dict[str, MimicVariable]) -> str:
+def _escape_undefined_variables(template: str, variables : Dict[str, MimicVariable], fix_strategy : Literal["escape", "clear"]) -> str:
   def _escape_if_undefined(match):
     variable_name = match.group("variable_name")
 
     if variables.get(variable_name, None) != None:
       return f"{{{{ {variable_name} }}}}"
     
-    return f"{{{{{{{{ {variable_name} }}}}}}}}" # So much mustaches
-  
+    if fix_strategy == "escape":
+      return f"{{{{{{{{ {variable_name} }}}}}}}}" # So much mustaches
+    elif fix_strategy == "clear":
+      return ""
+    else:
+      return ""
+
   return sub(extract_variable_name_regex, _escape_if_undefined, template)
 
-def _fix_issue(issue_file_path : str, variables : Dict[str, MimicVariable]) -> None :
+def _fix_issue(issue_file_path : str, variables : Dict[str, MimicVariable], fix_strategy : Literal["escape", "clear"]) -> None :
   try:
     with open(issue_file_path, "r") as fd:
-      fixed_file_content = _escape_undefined_variables("".join(fd.readlines()), variables)
+      fixed_file_content = _escape_undefined_variables("".join(fd.readlines()), variables, fix_strategy)
     
     with open(issue_file_path, "w") as fd:
       fd.write(fixed_file_content)
   except:
     pass
 
-def fix_mimic_template(undeclared_variables : List[MimicVariableReference], unreferenced_variables : List[str], mimic_config_file_path : str, mimic_config : MimicConfig) -> None:
+def fix_mimic_template(undeclared_variables : List[MimicVariableReference], unreferenced_variables : List[str], mimic_config_file_path : str, mimic_config : MimicConfig, fix_strategy : Literal["escape", "clear"]) -> None:
   directory_issues : List[MimicVariableReference] = []
   file_name_issues : List[MimicVariableReference] = []
   content_issue_file_paths : Set[str] = set()
@@ -101,7 +106,7 @@ def fix_mimic_template(undeclared_variables : List[MimicVariableReference], unre
   for issue_file_path in content_issue_file_paths:
     fix_issue_thread = Thread(
       target=_fix_issue,
-      args=(issue_file_path, mimic_config.template.variables)
+      args=(issue_file_path, mimic_config.template.variables, fix_strategy)
     )
     file_content_fix_issue_threads.append(fix_issue_thread)
     fix_issue_thread.start()
@@ -111,7 +116,7 @@ def fix_mimic_template(undeclared_variables : List[MimicVariableReference], unre
 
   for issue in directory_issues:
     source_dir_path = issue.source_path
-    fixed_dir_path = _escape_undefined_variables(source_dir_path, mimic_config.template.variables)
+    fixed_dir_path = _escape_undefined_variables(source_dir_path, mimic_config.template.variables, fix_strategy)
     if exists(fixed_dir_path) or len(fixed_dir_path.strip()) == 0:
       undeclared_variables.append(issue)
       continue
@@ -119,7 +124,7 @@ def fix_mimic_template(undeclared_variables : List[MimicVariableReference], unre
   
   for issue in file_name_issues:
     source_file_path = issue.source_path
-    fixed_file_path = _escape_undefined_variables(source_file_path, mimic_config.template.variables)
+    fixed_file_path = _escape_undefined_variables(source_file_path, mimic_config.template.variables, fix_strategy)
     if exists(fixed_file_path) or len(fixed_file_path.strip()) == 0:
       undeclared_variables.append(issue)
       continue

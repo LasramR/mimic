@@ -27,13 +27,13 @@ def NewMimicCloneOptions(base_clone_options : MimicCloneOptions) -> MimicCloneOp
 class MimicLintOptions (MimicCommandOptions) :
   name: Literal["lint"]
   mimic_template_dir: str
-  fix: bool
+  fix: Union[None, Literal["escape", "clear"]]
 
 def NewMimicLintOptions(base_lint_options : MimicLintOptions) -> MimicLintOptions :
   return {
     "name": "lint",
     "mimic_template_dir": abspath(base_lint_options["mimic_template_dir"]) if not base_lint_options.get("mimic_template_dir") is None else getcwd(),
-    "fix": base_lint_options.get("fix", False)
+    "fix": base_lint_options.get("fix", None)
    }
 
 class MimicAliasAction (TypedDict) :
