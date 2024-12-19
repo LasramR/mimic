@@ -510,6 +510,11 @@ The `.mimic.schema.json` provides a complete reference for the structure and pro
 * **Type**: `object`  
 * **Description**: Defines the configuration for Mimic templates.  
   * **Properties**:  
+    * `ignorePatterns`:  
+      * **Type**: `array`  
+      * **Description**: Lists of glob that will be ignored during mimic template cloning.  
+      * **Items**:  
+        * **Type**: `string`  
     * `variables`:  
       * **Type**: `object`  
       * **Description**: Contains named inputs prompted to users, substituted into files, paths, or commands.  
@@ -525,13 +530,24 @@ The `.mimic.schema.json` provides a complete reference for the structure and pro
           * `required`:  
             * **Type**: `boolean`  
             * **Description**: Indicates whether the variable must have a valid value.  
+          * `default`:  
+            * **Type** (conditional):
+              * if `type` == `string`: `string`  
+              * if `type` == `number`: `number`  
+              * if `type` == `boolean`: `boolean`  
+              * if `type` == `regex`: `string`  
+              * if `type` == `choice`: `string`  
+            * **Description**: Default value of the variable (Cannot be set if variable is required)  
           * `item` (conditional):  
-            * if **type** == `regex`: A Python regex defining valid input values.  
-            * if **type** == `choice`: A list of accepted values (minimum 1).  
+            * if `type` == `regex`: A Python regex defining valid input values.  
+            * if `type` == `choice`: A list of accepted values (minimum 1).
+            * if `type` == `boolean`: Boolean format in templated files after processing (wether "Capitalized" or "lower", defaults to "lower")
 
 #### `hooks`
 * **Type**: `array`  
 * **Description**: Defines scripts triggered at specific times during the execution of a Mimic template.  
+* **Items**:  
+  * **Type**: `object`  
   * **Item Properties**:  
     * `name`:  
       * **Type**: `string`  
@@ -555,11 +571,20 @@ The `.mimic.schema.json` provides a complete reference for the structure and pro
 
 ## [Roadmap](#roadmap)
 
-* Replace .mimict and .mt with an include glob in `.mimic.json`
-* Replace boolean prompt with Y/n
+### Planned for mimic 0.5.0
+
+* ignorePatterns glob
 * mimic escape command
-* mimic lint --fix option
+* mimic escape --only-undefined
+* mimic lint --fix
 * Better choice prompt
-* Proper testing
-* Mimic Bank (ie, one git repository / folder = multiple mimic templates)
+
+### Planned for mimic 1.0.0
+
 * Simple conditionnal rendering (For loops and other advanced mecanism are not planned)
+* Conditionnal hooks
+* Mimic Bank (ie, one git repository / folder = multiple mimic templates)
+
+### If God wants it
+
+* Proper testing

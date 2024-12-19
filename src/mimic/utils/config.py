@@ -22,19 +22,32 @@ class MimicVariable:
   required: bool = True
   description: Union[str, None] = None
   item: Union[Any, None] = None
+  default: Any
 
   def __init__(self, name: str, validated_raw : Dict[str, Any]):
     self.name = name
     self.type = validated_raw["type"]
     self.required = validated_raw.get("required", True)
     self.description = validated_raw.get("description", None)
+    
     if self.type == "regex":
       self.item = rf"{validated_raw.get('item', None)}"
     else:
       self.item = validated_raw.get("item", None)
 
+    if self.type == "boolean":
+      self.default = validated_raw.get("default", False)
+    else:
+      self.default = validated_raw.get("default", None)
+
+  def format_variable_value(self, value : Any):
+    if self.type == "boolean":
+      if self.item != "Capitalized":
+        return str(value).lower()
+    return str(value)
+
   @staticmethod
-  def NewFrom(name : str, type : MimicVariableTypeType, required: bool = True, description: Union[str, None] = None, item: Union[Any, None] = None):
+  def NewFrom(name : str, type : MimicVariableTypeType, required: bool = True, description: Union[str, None] = None, item: Union[Any, None] = None, default : Any = None):
     if type == "regex" and not isinstance(item, str):
       raise Exception("could not create MimicVariable of type regex without a valid item (str) qualifier")
     
@@ -45,7 +58,8 @@ class MimicVariable:
       "type": type,
       "required": required,
       "description": description,
-      "item": item
+      "item": item,
+      "default": default
     })
   
 class MimicVariableReference:

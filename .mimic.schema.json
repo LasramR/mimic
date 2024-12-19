@@ -55,10 +55,55 @@
               "required": {
                 "description": "Wether the user must specify a valid value",
                 "type": "boolean"
+              },
+              "default": {
+                "description": "Default value of the variable (Cannot be set if variable is required)"
               }
             },
             "required": ["type"],
             "allOf": [
+              {
+                "if": {
+                  "properties": { "type": { "const": "string" } }
+                },
+                "then": {
+                  "properties": {
+                    "default": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": { "type": { "const": "number" } }
+                },
+                "then": {
+                  "properties": {
+                    "default": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": { "type": { "const": "boolean" } }
+                },
+                "then": {
+                  "properties": {
+                    "item": {
+                      "description": "Boolean format in templated files after processing",
+                      "type": "string",
+                      "enum": ["Capitalized", "lower"]
+                    },
+                    "default": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": ["type"]
+                }
+              },
               {
                 "if": {
                   "properties": { "type": { "const": "regex" } }
@@ -67,6 +112,9 @@
                   "properties": {
                     "item": {
                       "description": "Python regex that constrains the accepted value",
+                      "type": "string"
+                    },
+                    "default": {
                       "type": "string"
                     }
                   },
@@ -86,9 +134,24 @@
                         "type": "string"
                       },
                       "minItems": 1
+                    },
+                    "default": {
+                      "type": "string"
                     }
                   },
                   "required": ["type", "item"]
+                }
+              },
+              {
+                "if": {
+                  "properties": { "required": { "not": { "const": false } } }
+                },
+                "then": {
+                  "properties": { 
+                    "default": {
+                      "type": "null"
+                    }
+                  }
                 }
               }
             ]

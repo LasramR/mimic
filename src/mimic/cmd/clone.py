@@ -8,7 +8,7 @@ from ..actions.hook import hook_action
 from ..utils import git, cloning, fs, config, input, alias_wallet
 from ..options import MimicOptions
 
-def _run_hooks(mimic_template_dir : str, when : config.MimicHookWhenType, variables: Dict[str, Any], mimic_config : config.MimicConfig, options : MimicOptions) -> bool :
+def _run_hooks(mimic_template_dir : str, when : config.MimicHookWhenType, variables : Dict[str, config.MimicVariable], variables_values: Dict[str, Any], mimic_config : config.MimicConfig, options : MimicOptions) -> bool :
   hooks = mimic_config.get_hooks_when(when)
   options["logger"].info(f"running '{when}' hooks ({len(hooks)})")
 
@@ -24,8 +24,8 @@ def _run_hooks(mimic_template_dir : str, when : config.MimicHookWhenType, variab
 
     hook_result = True
     try:
-      hook_result = hook_action(mimic_template_dir, h, variables, options["command"]["unsafe_mode"])
-    except:
+      hook_result = hook_action(mimic_template_dir, h, variables, variables_values, options["command"]["unsafe_mode"])
+    except Exception:
       if h.ignore_user_skip:
         options["logger"].warn(f"hook '{h.name or '<unnamed hook>'}' skipped")
       else:
@@ -75,7 +75,7 @@ def clone(options : MimicOptions) -> bool :
   mimic_config = config.load_mimic_config(mimic_config_file_path)
 
   if mimic_config == None:
-    raise Exception(f"cloud not apply post clone instruction because of broken mimic config (see {mimic_config_file_path})")
+    raise Exception("cloud not apply post clone instruction because of broken mimic config (see https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.schema.json)")
   
   fs.remove_ignore(mimic_config_file_path)
 
@@ -85,23 +85,24 @@ def clone(options : MimicOptions) -> bool :
   git_action(mimic_template_dir, mimic_config.git)
 
   options["logger"].info(f"collecting user input(s)")
-  variables = {}
+  variables_values = {}
   for v in mimic_config.template.variables.keys():
-    variables[mimic_config.template.variables[v].name] = input.get_user_variable_input(mimic_config.template.variables[v])
+    mimic_variable = mimic_config.template.variables[v]
+    variables_values[mimic_variable.name] = input.get_user_variable_input(mimic_variable)
 
-  pre_hooks_success = _run_hooks(mimic_template_dir, "pre_template_injection", variables, mimic_config, options)
+  pre_hooks_success = _run_hooks(mimic_template_dir, "pre_template_injection", mimic_config.template.variables, variables_values, mimic_config, options)
   
   if pre_hooks_success:
     options["logger"].info(f"generating mimic_template")
   else:
     options["logger"].warn(f'"pre_template_injection" hooks failed, mimic will still generate your mimic_template but "post_template_injection" hooks will be skipped')
 
-  inject_mimic_template(mimic_template_dir, variables)
+  inject_mimic_template(mimic_template_dir, mimic_config.template.variables, variables_values)
 
   options["logger"].success(f"{mimic_template_dir} generated")
 
   if pre_hooks_success:
-    if not _run_hooks(mimic_template_dir, "post_template_injection", variables, mimic_config, options):
+    if not _run_hooks(mimic_template_dir, "post_template_injection", mimic_config.template.variables, variables_values, mimic_config, options):
       options["logger"].error(f'"post_template_injection" hooks failed')
       return False
 
