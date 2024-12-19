@@ -6,7 +6,7 @@ from threading import Thread, Lock
 from typing import Dict, Any
 
 from ..utils.fs import get_file_without_extension, remove_ignore, is_file_of_extension
-from ..utils.config import MimicVariable
+from ..utils.config import MimicVariable, MimicConfig
 
 extract_variable_name_regex = r"(?<!\{\{)\{\{\s*(?P<variable_name>\w+)\s*\}\}(?!\}\})"
 extract_escaped_variable_name_regex = r"\{\{\{\{\s*(?P<variable_name>\w+)\s*\}\}\}\}"
@@ -54,13 +54,14 @@ def _inject_dir(source_dir : str, variables : Dict[str, MimicVariable], variable
   except:
     return False
 
-def inject_mimic_template(mimic_template_dir : str, variables : Dict[str, MimicVariable], variables_values : Dict[str, Any]) -> bool :
+# TODO ignore patterns
+def inject_mimic_template(mimic_template_dir : str, mimic_config : MimicConfig, variables_values : Dict[str, Any]) -> bool :
   template_file_paths = []
 
   for root, dirnames, filenames in walk(mimic_template_dir):
     for dirname in dirnames:
       if is_file_of_extension(dirname):
-        if not _inject_dir(join(root, dirname), variables, variables_values):
+        if not _inject_dir(join(root, dirname), mimic_config.template.variables, variables_values):
           return False
 
   for root, dirnames, filenames in walk(mimic_template_dir):
@@ -71,7 +72,7 @@ def inject_mimic_template(mimic_template_dir : str, variables : Dict[str, MimicV
   inject_file_results = {}
   inject_file_results_lock = Lock()
   inject_threads = [
-    Thread(target=_inject_file, args=(source_file_path, variables, variables_values, inject_file_results, inject_file_results_lock)) for source_file_path in template_file_paths
+    Thread(target=_inject_file, args=(source_file_path, mimic_config.template.variables, variables_values, inject_file_results, inject_file_results_lock)) for source_file_path in template_file_paths
   ]
   for t in inject_threads:
     t.start()

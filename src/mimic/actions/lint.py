@@ -5,7 +5,7 @@ from threading import Lock, Thread
 from typing import Set
 
 from .template import extract_variable_name_regex
-from ..utils.config import MimicVariableReference
+from ..utils.config import MimicVariableReference, MimicConfig
 from ..utils.fs import is_file_of_extension
 
 def _get_variables_from(template : str) -> Set[str] :
@@ -27,7 +27,8 @@ def _get_variables_from_file(source_file_path : str, variables : Set[MimicVariab
   except Exception:
     pass
 
-def get_variables_from_mimic_template(mimic_template_dir : str) -> Set[MimicVariableReference]:
+# TODO ignore patterns
+def get_variables_from_mimic_template(mimic_template_dir : str, mimic_config : MimicConfig) -> Set[MimicVariableReference]:
   variables : Set[MimicVariableReference] = set()
   variables_lock = Lock()
   get_variables_threads = []

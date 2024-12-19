@@ -5,21 +5,21 @@ from typing import Dict, List, Any
 
 from .template import inject_variable
 from ..utils.fs import get_file_without_extension, is_file_of_extension
-from ..utils.config import MimicPreview, MimicFileContentPreview
+from ..utils.config import MimicPreview, MimicFileContentPreview, MimicVariable, MimicConfig
 
-def _preview_file(source_file_path : str, variables_values : Dict[str, Any], mimic_template_preview : MimicPreview, mimic_template_preview_lock : Lock):
+def _preview_file(source_file_path : str, variables : Dict[str, MimicVariable], variables_values : Dict[str, Any], mimic_template_preview : MimicPreview, mimic_template_preview_lock : Lock):
   try:
     changes : List[MimicFileContentPreview] = []
     with open(source_file_path, "r") as fd:
       lineno = 1
       for line in fd:
         striped_line = line.strip()
-        parsed_line = inject_variable(striped_line, variables_values).strip()
+        parsed_line = inject_variable(striped_line, variables, variables_values).strip()
         if striped_line != parsed_line:
           changes.append(MimicFileContentPreview(striped_line, parsed_line, lineno))
         lineno += 1
   
-    parsed_file_path = sep.join(map(lambda d : get_file_without_extension(d), inject_variable(source_file_path, variables_values).split(sep)))
+    parsed_file_path = sep.join(map(lambda d : get_file_without_extension(d), inject_variable(source_file_path, variables, variables_values).split(sep)))
 
     with mimic_template_preview_lock:
       mimic_template_preview.file_content_preview[source_file_path] = changes
@@ -28,7 +28,8 @@ def _preview_file(source_file_path : str, variables_values : Dict[str, Any], mim
   except:
     pass
 
-def preview_mimic_template(mimic_template_dir : str, variables_values : Dict[str, Any]) -> MimicPreview:
+# TODO ignore pattern
+def preview_mimic_template(mimic_template_dir : str, mimic_config : MimicConfig, variables_values : Dict[str, Any]) -> MimicPreview:
   mimic_template_preview = MimicPreview()
   mimic_template_preview_lock = Lock()
   preview_file_threads = []
@@ -37,7 +38,7 @@ def preview_mimic_template(mimic_template_dir : str, variables_values : Dict[str
     for dirname in dirnames:
       if is_file_of_extension(dirname):
         source_dir = join(root, dirname)
-        parsed_dir = get_file_without_extension(inject_variable(source_dir, variables_values))
+        parsed_dir = get_file_without_extension(inject_variable(source_dir, mimic_config.template.variables, variables_values))
         
         if source_dir != parsed_dir:
           mimic_template_preview.directory_preview[source_dir] = parsed_dir
@@ -47,7 +48,7 @@ def preview_mimic_template(mimic_template_dir : str, variables_values : Dict[str
         source_file_path = join(root, filename)
         source_file_preview_file_thread = Thread(
           target=_preview_file, 
-          args=(source_file_path, variables_values, mimic_template_preview, mimic_template_preview_lock)
+          args=(source_file_path, mimic_config.template.variables, variables_values, mimic_template_preview, mimic_template_preview_lock)
         )
         preview_file_threads.append(source_file_preview_file_thread)
         source_file_preview_file_thread.start()
