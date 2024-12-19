@@ -2,7 +2,7 @@ from os import sep
 from typing import List
 
 from ..utils import config, fs
-from ..actions.template import get_variables_from_mimic_template
+from ..actions.lint import get_variables_from_mimic_template
 from ..options import MimicOptions
 
 def lint(options : MimicOptions) -> bool:

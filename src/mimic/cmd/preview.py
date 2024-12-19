@@ -2,7 +2,7 @@ from os import sep
 
 from ..utils import fs, config, input
 from ..utils.logger import ColorTable, ColorReset
-from ..actions.template import preview_mimic_template
+from ..actions.preview import preview_mimic_template
 from ..options import MimicOptions
 
 def preview(options : MimicOptions) -> bool:
@@ -41,10 +41,12 @@ def preview(options : MimicOptions) -> bool:
     options["logger"].info(f"{k} -> {mimic_template_preview.file_preview[k]}")
 
   if len(mimic_template_preview.file_content_preview.keys()):
-    options["logger"].info(f"content change(s) ({len(mimic_template_preview.file_content_preview.keys())})")
+    options["logger"].info(f"content change(s) ({sum([len(mimic_template_preview.file_content_preview[k]) for k in mimic_template_preview.file_content_preview.keys()])})")
 
   for k in mimic_template_preview.file_content_preview.keys():
     for c in mimic_template_preview.file_content_preview[k]:
       options["logger"].info(f"{k} line {c.line}")
       print(f"{ColorTable["RED"]}- {c.raw}{ColorReset}")
       print(f"{ColorTable["GREEN"]}- {c.parsed}{ColorReset}")
+
+  # TODO add hook preview

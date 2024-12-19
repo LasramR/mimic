@@ -29,6 +29,13 @@
       "description": "Set of properties to configure a mimic template",
       "type": "object",
       "properties": {
+        "ignorePatterns": {
+          "description": "Lists of glob that will be ignored during mimic template cloning",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "variables": {
           "description": "Named inputs that will be prompted to the user and substituted in template files, hooks, and paths",
           "type": "object",
