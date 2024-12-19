@@ -27,7 +27,7 @@ def preview(options : MimicOptions) -> bool:
     mimic_variable = mimic_config.template.variables[v]
     variables[mimic_variable.name] = input.get_user_variable_input(mimic_variable)
 
-  mimic_template_preview = preview_mimic_template(mimic_template_dir, variables)
+  mimic_template_preview = preview_mimic_template(mimic_template_dir, mimic_config, variables)
 
   options["logger"].success(f"mimic_template preview generated")
 

@@ -71,12 +71,16 @@ class MimicVariableReference:
     self.is_file = is_file
 
 class MimicTemplateConfig:
-  variables: Dict[str, MimicVariable] = {}
+  ignorePatterns: List[str]
+  variables: Dict[str, MimicVariable]
 
   def __init__(self, validated_raw : Union[Dict[str, Any], None]):
     if validated_raw == None:
       return
     
+    self.ignorePatterns = validated_raw.get("ignorePatterns", [])
+
+    self.variables = {}
     if raw_variables := validated_raw.get("variables"):
       for v in raw_variables.keys():
         self.variables[v] = MimicVariable(v, raw_variables[v])

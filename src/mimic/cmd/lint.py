@@ -24,11 +24,11 @@ def lint(options : MimicOptions) -> bool:
       options["logger"].error(f"{issue.property} {issue.reason}")
     return False
 
-  mimic_config_file_config = config.load_mimic_config(mimic_config_file_path)
+  mimic_config = config.load_mimic_config(mimic_config_file_path)
 
-  reference_table = {k : [] for k in mimic_config_file_config.template.variables.keys()}
+  reference_table = {k : [] for k in mimic_config.template.variables.keys()}
   undeclared_variables : List[config.MimicVariableReference]= []
-  for v in get_variables_from_mimic_template(mimic_template_dir):
+  for v in get_variables_from_mimic_template(mimic_template_dir, mimic_config):
     if v.name in reference_table:
       reference_table[v.name].append(v)
     else:

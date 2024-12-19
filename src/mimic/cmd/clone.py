@@ -97,7 +97,7 @@ def clone(options : MimicOptions) -> bool :
   else:
     options["logger"].warn(f'"pre_template_injection" hooks failed, mimic will still generate your mimic_template but "post_template_injection" hooks will be skipped')
 
-  inject_mimic_template(mimic_template_dir, mimic_config.template.variables, variables_values)
+  inject_mimic_template(mimic_template_dir, mimic_config, variables_values)
 
   options["logger"].success(f"{mimic_template_dir} generated")
 
