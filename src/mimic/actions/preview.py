@@ -1,10 +1,9 @@
-from os import sep, walk
-from os.path import join
+from os.path import isdir
 from threading import Lock, Thread
 from typing import Dict, List, Any
 
 from .template import inject_variable
-from ..utils.fs import get_file_without_extension, is_file_of_extension
+from ..utils.fs import ignore_glob
 from ..utils.config import MimicPreview, MimicFileContentPreview, MimicVariable, MimicConfig
 
 def _preview_file(source_file_path : str, variables : Dict[str, MimicVariable], variables_values : Dict[str, Any], mimic_template_preview : MimicPreview, mimic_template_preview_lock : Lock):
@@ -19,7 +18,7 @@ def _preview_file(source_file_path : str, variables : Dict[str, MimicVariable], 
           changes.append(MimicFileContentPreview(striped_line, parsed_line, lineno))
         lineno += 1
   
-    parsed_file_path = sep.join(map(lambda d : get_file_without_extension(d), inject_variable(source_file_path, variables, variables_values).split(sep)))
+    parsed_file_path = inject_variable(source_file_path, variables, variables_values)
 
     with mimic_template_preview_lock:
       mimic_template_preview.file_content_preview[source_file_path] = changes
@@ -28,30 +27,23 @@ def _preview_file(source_file_path : str, variables : Dict[str, MimicVariable], 
   except:
     pass
 
-# TODO ignore pattern
 def preview_mimic_template(mimic_template_dir : str, mimic_config : MimicConfig, variables_values : Dict[str, Any]) -> MimicPreview:
   mimic_template_preview = MimicPreview()
   mimic_template_preview_lock = Lock()
   preview_file_threads = []
 
-  for root, dirnames, filenames in walk(mimic_template_dir):
-    for dirname in dirnames:
-      if is_file_of_extension(dirname):
-        source_dir = join(root, dirname)
-        parsed_dir = get_file_without_extension(inject_variable(source_dir, mimic_config.template.variables, variables_values))
-        
-        if source_dir != parsed_dir:
-          mimic_template_preview.directory_preview[source_dir] = parsed_dir
-
-    for filename in filenames:
-      if is_file_of_extension(filename):
-        source_file_path = join(root, filename)
-        source_file_preview_file_thread = Thread(
-          target=_preview_file, 
-          args=(source_file_path, mimic_config.template.variables, variables_values, mimic_template_preview, mimic_template_preview_lock)
-        )
-        preview_file_threads.append(source_file_preview_file_thread)
-        source_file_preview_file_thread.start()
+  for source_path in ignore_glob(mimic_config.template.ignorePatterns, root_dir=mimic_template_dir, include_hidden=True):
+    if isdir(source_path):
+      parsed_dir = inject_variable(source_path, mimic_config.template.variables, variables_values)
+      if source_path != parsed_dir:
+        mimic_template_preview.directory_preview[source_path] = parsed_dir
+    else:
+      source_file_preview_file_thread = Thread(
+        target=_preview_file, 
+        args=(source_path, mimic_config.template.variables, variables_values, mimic_template_preview, mimic_template_preview_lock)
+      )
+      preview_file_threads.append(source_file_preview_file_thread)
+      source_file_preview_file_thread.start()
 
   for t in preview_file_threads:
     t.join()

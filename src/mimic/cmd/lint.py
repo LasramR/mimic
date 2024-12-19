@@ -40,12 +40,12 @@ def lint(options : MimicOptions) -> bool:
       unreferenced_variables.append(k)
 
   if 0 < len(unreferenced_variables):
-    options["logger"].warn(f"{mimic_config_file_path}: {len(unreferenced_variables)} variable(s) are declared but not used")
+    options["logger"].warn(f"{mimic_config_file_path}: {len(unreferenced_variables)} variable{'s are' if 1 < len(unreferenced_variables) else ' is'} declared but not used")
     for uv in unreferenced_variables:
       options["logger"].warn(f"- {uv}")
 
   if 0 < len(undeclared_variables):
-    options["logger"].warn(f"There {len(undeclared_variables)} declared variables in mimic_template {mimic_template_dir} that are not defined in {mimic_config_file_path}")
+    options["logger"].warn(f"There {'are' if 1 < len(undeclared_variables) else 'is'} {len(undeclared_variables)} variables in mimic_template {mimic_template_dir} which {'are' if 1 < len(undeclared_variables) else 'is'} not defined in {mimic_config_file_path}")
     for uv in undeclared_variables:
       if uv.is_file:
         options["logger"].warn(f"- file {uv.source_path} has a reference to {{{{{uv.name}}}}} in its name")

@@ -1,12 +1,12 @@
 from os import walk
-from os.path import basename, join
+from os.path import basename, join, isdir
 from re import finditer
 from threading import Lock, Thread
 from typing import Set
 
 from .template import extract_variable_name_regex
 from ..utils.config import MimicVariableReference, MimicConfig
-from ..utils.fs import is_file_of_extension
+from ..utils.fs import ignore_glob
 
 def _get_variables_from(template : str) -> Set[str] :
   return {match.group("variable_name") for match in finditer(extract_variable_name_regex, template)}
@@ -27,25 +27,21 @@ def _get_variables_from_file(source_file_path : str, variables : Set[MimicVariab
   except Exception:
     pass
 
-# TODO ignore patterns
 def get_variables_from_mimic_template(mimic_template_dir : str, mimic_config : MimicConfig) -> Set[MimicVariableReference]:
   variables : Set[MimicVariableReference] = set()
   variables_lock = Lock()
   get_variables_threads = []
 
-  for root, dirnames, filenames in walk(mimic_template_dir):
-    for dirname in dirnames:
-      if is_file_of_extension(dirname):
-        for v in _get_variables_from(join(root, dirname)):
-          variables.add(MimicVariableReference(v, join(root, dirname), is_directory=True))
-    for filename in filenames:
-      if is_file_of_extension(filename):
-        source_file_path = join(root, filename)
-        source_file_get_variables_thread = Thread(
-          target=_get_variables_from_file, args=(source_file_path, variables, variables_lock)
-        )
-        get_variables_threads.append(source_file_get_variables_thread)
-        source_file_get_variables_thread.start()
+  for source_path in ignore_glob(mimic_config.template.ignorePatterns, root_dir=mimic_template_dir, include_hidden=True):
+    if isdir(source_path):
+      for v in _get_variables_from(source_path):
+        variables.add(MimicVariableReference(v, source_path, is_directory=True))
+    else:
+      source_file_get_variables_thread = Thread(
+        target=_get_variables_from_file, args=(source_path, variables, variables_lock)
+      )
+      get_variables_threads.append(source_file_get_variables_thread)
+      source_file_get_variables_thread.start()
 
   for t in get_variables_threads:
     t.join()
