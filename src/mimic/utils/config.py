@@ -1,5 +1,5 @@
 from jsonschema import validate, Draft202012Validator
-from json import load
+from json import load, dump
 from os.path import join, dirname
 from typing import Union, Literal, List, Dict, Any
 
@@ -13,6 +13,14 @@ class MimicGitConfig:
     
     self.enabled = validated_raw.get("enabled", False)
     self.main_branch = validated_raw.get("main_branch", "main")
+  
+  def toJSON(self) -> Dict[str, Any] :
+    jsoned = {}
+
+    jsoned["enabled"] = self.enabled
+    jsoned["main_branch"] = self.main_branch
+
+    return jsoned
 
 MimicVariableTypeType = Literal["string", "number", "boolean", "regex", "choice"]
 
@@ -22,7 +30,7 @@ class MimicVariable:
   required: bool = True
   description: Union[str, None] = None
   item: Union[Any, None] = None
-  default: Any
+  default: Union[Any, None] = None
 
   def __init__(self, name: str, validated_raw : Dict[str, Any]):
     self.name = name
@@ -62,27 +70,22 @@ class MimicVariable:
       "default": default
     })
   
-class MimicFileContentPreview:
+  def toJSON(self) -> Dict[str, Any]:
+    jsoned = {}
 
-  raw : str
-  parsed: str
-  line: int
+    jsoned["type"] = self.type
+    jsoned["required"] = self.required
+    
+    if self.description != None:
+      jsoned["description"] = self.description
+    
+    if self.item != None:
+      jsoned["item"] = self.item
 
-  def __init__(self, raw : str, parsed: str, line: int):
-    self.raw = raw
-    self.parsed = parsed
-    self.line = line
+    if self.default != None:
+      jsoned["default"] = self.default
 
-class MimicPreview:
-
-  directory_preview: Dict[str, str]
-  file_preview: Dict[str, str]
-  file_content_preview: Dict[str, List[MimicFileContentPreview]]
-
-  def __init__(self):
-    self.directory_preview = {}
-    self.file_preview = {}
-    self.file_content_preview = {}
+    return jsoned
 
 class MimicTemplateConfig:
   ignorePatterns: List[str]
@@ -98,6 +101,17 @@ class MimicTemplateConfig:
     if raw_variables := validated_raw.get("variables"):
       for v in raw_variables.keys():
         self.variables[v] = MimicVariable(v, raw_variables[v])
+
+  def toJSON(self) -> Dict[str, Any]:
+    jsoned = {}
+    
+    jsoned["ignorePatterns"] = self.ignorePatterns
+    
+    jsoned["variables"] = {}
+    for v in self.variables.keys():
+      jsoned["variables"][v] = self.variables[v].toJSON()
+
+    return jsoned
 
 MimicHookWhenType = Literal["pre_template_injection", "post_template_injection"]
 
@@ -117,6 +131,19 @@ class MimicHookConfig:
     self.steps = validated_raw["steps"]
     self.ignore_error = validated_raw.get("ignore_error", False)
     self.ignore_user_skip = validated_raw.get("ignore_user_skip", False)
+  
+  def toJSON(self) -> Dict[str, Any]:
+    jsoned = {}
+
+    if self.name != None:
+      jsoned["name"] = self.name
+
+    jsoned["when"] = self.when
+    jsoned["steps"] = self.steps
+    jsoned["ignore_error"] = self.ignore_error
+    jsoned["ignore_user_skip"] = self.ignore_user_skip
+
+    return jsoned
 
 class MimicConfig:
   git: MimicGitConfig
@@ -132,6 +159,16 @@ class MimicConfig:
 
   def get_hooks_when(self, when : MimicHookWhenType) -> List[MimicHookConfig]:
     return list(filter(lambda h: h.when == when, self.hooks))
+
+  def toJSON(self) -> Dict[str, Any]:
+    return {
+      "$schema": "https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.schema.json",
+      "git": self.git.toJSON(),
+      "template": self.template.toJSON(),
+      "hooks": [
+        h.toJSON() for h in self.hooks
+      ]
+    }
 
 class MimicConfigIssue:
   property: str
@@ -166,5 +203,35 @@ def load_mimic_config(mimic_config_file_path : str) -> Union[MimicConfig, None]:
       mimic_config_file_data = load(fd)
       validate(mimic_config_file_data, schema)
       return MimicConfig(mimic_config_file_data)
-  except Exception as e:
+  except Exception:
     return None
+
+def overwrite_mimic_config(mimic_config_file_path : str, mimic_config : MimicConfig) -> bool:
+  try:
+    with open(mimic_config_file_path, "w") as fd:
+      dump(mimic_config.toJSON(), fd, indent=2)
+      return True
+  except:
+    return False
+
+class MimicFileContentPreview:
+
+  raw : str
+  parsed: str
+  line: int
+
+  def __init__(self, raw : str, parsed: str, line: int):
+    self.raw = raw
+    self.parsed = parsed
+    self.line = line
+
+class MimicPreview:
+
+  directory_preview: Dict[str, str]
+  file_preview: Dict[str, str]
+  file_content_preview: Dict[str, List[MimicFileContentPreview]]
+
+  def __init__(self):
+    self.directory_preview = {}
+    self.file_preview = {}
+    self.file_content_preview = {}

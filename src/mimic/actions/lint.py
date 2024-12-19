@@ -5,7 +5,7 @@ from shutil import move
 from typing import Set, List, Dict
 
 from .template import extract_variable_name_regex
-from ..utils.config import MimicConfig, MimicVariable
+from ..utils.config import MimicConfig, MimicVariable, overwrite_mimic_config
 from ..utils.fs import ignore_glob
 
 class MimicVariableReference:
@@ -83,7 +83,7 @@ def _fix_issue(issue : MimicVariableReference, variables : Dict[str, MimicVariab
   except:
     pass
 
-def fix_mimic_template(undeclared_variables : List[MimicVariableReference], unreferenced_variables : List[str], mimic_config : MimicConfig) -> int:
+def fix_mimic_template(undeclared_variables : List[MimicVariableReference], unreferenced_variables : List[str], mimic_config_file_path : str, mimic_config : MimicConfig) -> int:
   directory_issues : List[MimicVariableReference] = []
   file_name_issues : List[MimicVariableReference] = []
 
@@ -136,7 +136,6 @@ def fix_mimic_template(undeclared_variables : List[MimicVariableReference], unre
       resolved_issue_count += 1
   
   if mimic_config_issue_count != 0 and mimic_config_issue_count != len(unreferenced_variables):
-    # TODO dump new mimic config file
-    pass
+    overwrite_mimic_config(mimic_config_file_path, mimic_config)
 
   return resolved_issue_count
