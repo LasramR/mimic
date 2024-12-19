@@ -182,17 +182,20 @@ def is_mimic_config_file_data_valid(mimic_config_file_path : str) -> List[MimicC
   with open(join(dirname(__file__), "..", "..", "..", ".mimic.schema.json"), "r") as fd:
     schema = load(fd)
 
-  with open(mimic_config_file_path, "r") as fd:
-    mimic_config_file_data = load(fd)
+  try:
+    with open(mimic_config_file_path, "r") as fd:
+      mimic_config_file_data = load(fd)
 
-    validator = Draft202012Validator(schema)
-    validator_errors = sorted(validator.iter_errors(mimic_config_file_data), key=lambda e: e.path)
-    format_issues = []
+      validator = Draft202012Validator(schema)
+      validator_errors = sorted(validator.iter_errors(mimic_config_file_data), key=lambda e: e.path)
+      format_issues = []
 
-    for error in validator_errors:
-      format_issues.append(MimicConfigIssue('.'.join(map(str, error.path)), error.message))
+      for error in validator_errors:
+        format_issues.append(MimicConfigIssue('.'.join(map(str, error.path)), error.message))
 
-    return format_issues
+      return format_issues
+  except Exception as e:
+    return [MimicConfigIssue(mimic_config_file_path, e)]
 
 def load_mimic_config(mimic_config_file_path : str) -> Union[MimicConfig, None]:
   try:

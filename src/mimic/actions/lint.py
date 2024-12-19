@@ -72,9 +72,8 @@ def _escape_undefined_variables(template: str, variables : Dict[str, MimicVariab
   
   return sub(extract_variable_name_regex, _escape_if_undefined, template)
 
-def _fix_issue(issue : MimicVariableReference, variables : Dict[str, MimicVariable]) -> None :
+def _fix_issue(issue_file_path : str, variables : Dict[str, MimicVariable]) -> None :
   try:
-    issue_file_path = issue.source_path
     with open(issue_file_path, "r") as fd:
       fixed_file_content = _escape_undefined_variables("".join(fd.readlines()), variables)
     
@@ -83,59 +82,56 @@ def _fix_issue(issue : MimicVariableReference, variables : Dict[str, MimicVariab
   except:
     pass
 
-def fix_mimic_template(undeclared_variables : List[MimicVariableReference], unreferenced_variables : List[str], mimic_config_file_path : str, mimic_config : MimicConfig) -> int:
+def fix_mimic_template(undeclared_variables : List[MimicVariableReference], unreferenced_variables : List[str], mimic_config_file_path : str, mimic_config : MimicConfig) -> None:
   directory_issues : List[MimicVariableReference] = []
   file_name_issues : List[MimicVariableReference] = []
+  content_issue_file_paths : Set[str] = set()
 
-  resolved_issue_count = 0
   file_content_fix_issue_threads : List[Thread] = []
 
-  for issue in undeclared_variables:
+  while 0 < len(undeclared_variables):
+    issue = undeclared_variables.pop()
     if issue.is_directory:
       directory_issues.append(issue)
     if issue.is_file:
       file_name_issues.append(issue)
     else:
-      fix_issue_thread = Thread(
-        target=_fix_issue,
-        args=(issue, mimic_config.template.variables)
-      )
-      file_content_fix_issue_threads.append(fix_issue_thread)
-      fix_issue_thread.start()
-      undeclared_variables.remove(issue)
+      content_issue_file_paths.add(issue.source_path)
+
+  for issue_file_path in content_issue_file_paths:
+    fix_issue_thread = Thread(
+      target=_fix_issue,
+      args=(issue_file_path, mimic_config.template.variables)
+    )
+    file_content_fix_issue_threads.append(fix_issue_thread)
+    fix_issue_thread.start()
 
   for t in file_content_fix_issue_threads:
     t.join()
-    resolved_issue_count += 1  
 
   for issue in directory_issues:
     source_dir_path = issue.source_path
     fixed_dir_path = _escape_undefined_variables(source_dir_path, mimic_config.template.variables)
     if exists(fixed_dir_path) or len(fixed_dir_path.strip()) == 0:
-      # TODO some sort of mecanism to log that this didn't worked
+      undeclared_variables.append(issue)
       continue
     move(source_dir_path, fixed_dir_path)
-    undeclared_variables.remove(issue)
-    resolved_issue_count += 1
   
   for issue in file_name_issues:
     source_file_path = issue.source_path
     fixed_file_path = _escape_undefined_variables(source_file_path, mimic_config.template.variables)
     if exists(fixed_file_path) or len(fixed_file_path.strip()) == 0:
-      # TODO some sort of mecanism to log that this didn't worked
+      undeclared_variables.append(issue)
       continue
     move(source_file_path, fixed_file_path)
-    undeclared_variables.remove(issue)
-    resolved_issue_count += 1
 
   mimic_config_issue_count = len(unreferenced_variables)
   for variable_name in unreferenced_variables:
     if variable_name in mimic_config.template.variables:
       del mimic_config.template.variables[variable_name]
       unreferenced_variables.remove(variable_name)
-      resolved_issue_count += 1
   
   if mimic_config_issue_count != 0 and mimic_config_issue_count != len(unreferenced_variables):
     overwrite_mimic_config(mimic_config_file_path, mimic_config)
 
-  return resolved_issue_count
+  # TODO return reason why some fix failed
