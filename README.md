@@ -140,7 +140,7 @@ Then, set up its properties to define constraints on the user input (see [.mimic
 
 #### [Using variables](#using-variables)
 
-A variable can be referenced in your mimic template using the mustache (`{{ _ }}`) syntax. You can reference your variables in :
+A variable can be referenced in your mimic template using the mustache (``) syntax. You can reference your variables in :
 * **file content**, insert variable values directly into file contents.
 * **file name**, use variables to dynamically define file names.
 * **directory name**, dynamically set directory names using variables.
@@ -187,11 +187,11 @@ src/lib/{{ <Your variable >}}/
 
 #### [Escaping variables](#escaping-variables)
 
-If for some reason, you actually need a mustache-like string in your template (eg a mustache template file), you can escape variables by mustaching the mustaches (`{{ {{ _ }} }}`). For example:
+If for some reason, you actually need a mustache-like string in your template (eg a mustache template file), you can escape variables by mustaching the mustaches (`{{  }}`). For example:
 
 ```ts
 // main.ts
-const myMustacheTemplatedString = "Hello {{ {{ user_name }} }}"
+const myMustacheTemplatedString = "Hello {{  }}"
 console.log(myMustacheTemplatedString);
 ```
 
@@ -199,7 +199,7 @@ When processed by the mimic CLI (ie when cloning your mimic template), the file 
 
 ```ts
 // main.ts
-const myMustacheTemplatedString = "Hello {{ user_name }}"
+const myMustacheTemplatedString = "Hello "
 console.log(myMustacheTemplatedString);
 ```
 

@@ -1,11 +1,10 @@
-from re import sub, finditer
-from os import walk, sep
-from os.path import join, basename, dirname
+from re import sub
+from os.path import join, isdir, split
 from shutil import move
 from threading import Thread, Lock
 from typing import Dict, Any
 
-from ..utils.fs import get_file_without_extension, remove_ignore, is_file_of_extension
+from ..utils.fs import remove_ignore, ignore_glob
 from ..utils.config import MimicVariable, MimicConfig
 
 extract_variable_name_regex = r"(?<!\{\{)\{\{\s*(?P<variable_name>\w+)\s*\}\}(?!\}\})"
@@ -33,7 +32,8 @@ def _inject_file(source_file_path : str, variables : Dict[str, MimicVariable], v
     with open(source_file_path, "r") as fd:
       parsed_file_content = inject_variable("".join(fd.readlines()), variables, variables_values)
 
-    parsed_file_path = join(dirname(source_file_path), get_file_without_extension(inject_variable(basename(source_file_path), variables, variables_values)))
+    source_dir_path, source_file_name = split(source_file_path)
+    parsed_file_path = join(source_dir_path, inject_variable(source_file_name, variables, variables_values))
 
     with open(parsed_file_path, "w") as fd:
       fd.write(parsed_file_content)
@@ -43,40 +43,39 @@ def _inject_file(source_file_path : str, variables : Dict[str, MimicVariable], v
 
     with inject_file_results_lock:
       inject_file_results[source_file_path] = True
-  except:
+  except Exception:
     with inject_file_results_lock:
       inject_file_results[source_file_path] = False
 
 def _inject_dir(source_dir : str, variables : Dict[str, MimicVariable], variables_values : Dict[str, Any]) -> bool:
   try:
-    move(source_dir, get_file_without_extension(inject_variable(source_dir, variables, variables_values)))
+    move(source_dir, inject_variable(source_dir, variables, variables_values))
     return True
   except:
     return False
 
-# TODO ignore patterns
 def inject_mimic_template(mimic_template_dir : str, mimic_config : MimicConfig, variables_values : Dict[str, Any]) -> bool :
-  template_file_paths = []
-
-  for root, dirnames, filenames in walk(mimic_template_dir):
-    for dirname in dirnames:
-      if is_file_of_extension(dirname):
-        if not _inject_dir(join(root, dirname), mimic_config.template.variables, variables_values):
-          return False
-
-  for root, dirnames, filenames in walk(mimic_template_dir):
-    for filename in filenames:
-      if is_file_of_extension(filename):
-        template_file_paths.append(join(root, filename))
-    
   inject_file_results = {}
   inject_file_results_lock = Lock()
-  inject_threads = [
-    Thread(target=_inject_file, args=(source_file_path, mimic_config.template.variables, variables_values, inject_file_results, inject_file_results_lock)) for source_file_path in template_file_paths
-  ]
-  for t in inject_threads:
-    t.start()
-  for t in inject_threads:
+  inject_file_threads = []
+
+  for source_path in ignore_glob(mimic_config.template.ignorePatterns, root_dir=mimic_template_dir, include_hidden=True):
+    if isdir(source_path):
+      _inject_dir(source_path, mimic_config.template.variables, variables_values)
+    else:
+      # Directories are always returned first in a glob match
+      # We need to update the source_dir_path as we injected dir before
+      source_dir_path, source_file_name = split(source_path)
+      source_file_path = join(inject_variable(source_dir_path, mimic_config.template.variables, variables_values), source_file_name)
+
+      source_file_path_inject_file_thread = Thread(
+        target=_inject_file,
+        args=(source_file_path, mimic_config.template.variables, variables_values, inject_file_results, inject_file_results_lock)
+      )
+      inject_file_threads.append(source_file_path_inject_file_thread)
+      source_file_path_inject_file_thread.start()
+
+  for t in inject_file_threads:
     t.join()
   
   return all([inject_file_results[k] for k in inject_file_results.keys()])
