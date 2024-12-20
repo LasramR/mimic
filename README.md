@@ -43,17 +43,12 @@ However, it's important to note that Mimic is specifically designed for template
 
 Install Python (if not already installed):
 ```bash
-sudo apt update && sudo apt install python3
-```
-
-Install pipx (if not already installed):
-```bash
-sudo apt install pipx && pipx ensurepath
+sudo apt update && sudo apt install python3 python3-venv
 ```
 
 Install mimic:
 ```bash
-git clone https://github.com/LasramR/mimic.git ~/.mimic && pipx install -e ~/.mimic
+git clone https://github.com/LasramR/mimic.git ~/.mimic && ~/.mimic/scripts/install.sh
 ```
 
 Open a new shell session and running `mimic -h` should output:
@@ -63,20 +58,18 @@ usage: mimic [-h] {clone,lint,alias,init,preview} ...
 ...
 ```
 
+Tips:
+* if you don't have sudo rights on your machine, you can install Python with [pyenv](https://github.com/pyenv/pyenv)
+
+
 ### [Windows](#windows)
 
 Install Python (if not already installed):
 * download the latest release of Python from [python.org](https://www.python.org/downloads/windows/)
 
-Install pipx (if not already installed):
-```bash
-# If you installed python using Microsoft Store, replace `py` with `python3` in the next line.
-py -m pip install --user pipx
-```
-
 Install mimic (through powershell):
 ```bash
-git clone https://github.com/LasramR/mimic.git "$($env:USERPROFILE)\\.mimic" && pipx install -e "$($env:USERPROFILE)\\.mimic" 
+git clone https://github.com/LasramR/mimic.git "$($env:USERPROFILE)\\.mimic" && "$($env:USERPROFILE)\\.mimic\\scripts\\install.ps1"
 ```
 
 Open a new powershell session and running `mimic -h` should output:
@@ -114,7 +107,7 @@ See [Command line options](#command-line-options) for additional information abo
 
 ### [Variables](#variables)
 
-A variable is a name defined in the `.mimic.json`. When generating a mimic from a template, the user will be prompted to indicate which value to associate with the variable. This value will be used by the mimic CLI to perform substitution of the variable name by the user.
+A variable is a name defined in the `.mimic.json`. When generating a mimic from a template, the user will be prompted to indicate which value to associate with the variable. This value will be used by the mimic CLI to perform substitution of the variable name by the user input.
 
 #### [Defining variables](#defining-variables)
 
@@ -571,10 +564,6 @@ The `.mimic.schema.json` provides a complete reference for the structure and pro
 
 ## [Roadmap](#roadmap)
 
-### Planned for mimic 0.5.0
-
-* Better choice prompt
-
 ### Planned for mimic 1.0.0
 
 * Simple conditionnal rendering (For loops and other advanced mecanism are not planned)
@@ -584,3 +573,4 @@ The `.mimic.schema.json` provides a complete reference for the structure and pro
 ### If God wants it
 
 * Proper testing
+* Better choice prompt
