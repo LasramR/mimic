@@ -53,6 +53,12 @@ However, it's important to note that Mimic is specifically designed for template
 
 ### [Ubuntu, Debian](#ubuntu-debian)
 
+Install git (if not already installed):
+```bash
+sudo apt update && sudo apt install git
+```
+
+
 Install Python (if not already installed):
 ```bash
 sudo apt update && sudo apt install python3 python3-venv
@@ -76,12 +82,17 @@ Tips:
 
 ### [Windows](#windows)
 
+Install git (if not already installed):
+* download and install the latest release of Git for Windows [https://git-scm.com](https://git-scm.com/downloads/win)
+
 Install Python (if not already installed):
-* download the latest release of Python from [python.org](https://www.python.org/downloads/windows/)
+* download and install the latest release of Python from [python.org](https://www.python.org/downloads/windows/)
 
 Install mimic (through powershell):
 ```bash
-git clone https://github.com/LasramR/mimic.git "$($env:USERPROFILE)\\.mimic" && "$($env:USERPROFILE)\\.mimic\\scripts\\install.ps1"
+Set-ExecutionPolicy Bypass -scope Process -Force;
+git clone https://github.com/LasramR/mimic.git "$($env:USERPROFILE)\\.mimic"; 
+powershell "$($env:USERPROFILE)\\.mimic\\scripts\\install.ps1"
 ```
 
 Open a new powershell session and running `mimic -h` should output:
