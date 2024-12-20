@@ -60,4 +60,3 @@ def preview(options : MimicOptions) -> bool:
         print(f"{ColorTable['RED']}will fail if an error occurs{ColorReset}")
       if not h.ignore_user_skip:
         print(f"{ColorTable['RED']}will fail if user skip{ColorReset}")
-

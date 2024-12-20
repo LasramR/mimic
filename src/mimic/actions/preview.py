@@ -47,5 +47,9 @@ def preview_mimic_template(mimic_template_dir : str, mimic_config : MimicConfig,
 
   for t in preview_file_threads:
     t.join()
+
+  for h in mimic_config.hooks:
+    for i in range(len(h.steps)):
+      h.steps[i] = inject_variable(h.steps[i], mimic_config.template.variables, variables_values)
   
   return mimic_template_preview
