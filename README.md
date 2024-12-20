@@ -8,6 +8,15 @@ By using Mimic, you can automate repetitive tasks and save time by quickly gener
 
 However, it's important to note that Mimic is specifically designed for template purposes and not for generating dynamic code. While Mimic (will) supports conditional rendering in templates, it does not aim to provide the full code generation capabilities of tools like [Cookiecutter](https://github.com/cookiecutter/cookiecutter) or [Copier](https://github.com/copier-org/copier). If your goal is to generate or manipulate code within your templates, you may want to explore those other tools instead.
 
+## [Features](#features)
+
+* Clone a mimic template and prompt the user for template-defined variables for automatic template injection
+* Run pre / post template injection commands via template-defined hooks
+* Easily create new mimic templates with the help of the mimic linter and the mimic previewer
+* Manage your mimic template with the mimic aliases wallet
+* Works on Windows and Linux
+* WIP: conditional rendering and conditional hook triggering
+
 ## Table of content
 
 1. [Installation](#installation) 
@@ -196,6 +205,8 @@ const myMustacheTemplatedString = "Hello "
 console.log(myMustacheTemplatedString);
 ```
 
+You can automatically escape undefined variables using the mimic linter (see [Linter](#linter)).
+
 #### [Conditionnal rendering with variables](#conditionnal-rendering-with-variables)
 
 WIP
@@ -243,6 +254,8 @@ To run the mimic linter on your mimic template, in the root folder of your templ
 ```bash
 mimic lint
 ```
+
+The mimic linter also come with a `--fix` arguments that allows you to automatically fix linting issues (if possible).
 
 See [Command line options](#command-line-options) for additional information about the `mimic lint` command.
 
@@ -461,12 +474,15 @@ These are the command-line options available in Mimic. You can get detailed help
 * **Description**: Detect errors in your mimic template.  
 * **Usage**:  
   ```bash
-  mimic lint [mimic_template_dir]
+  mimic lint [--fix [{escape,clear}]] [mimic_template_dir]
   ```
 * **Arguments**:  
   * `mimic_template_dir`  
     * **Type**: `str` (optional)  
     * **Description**: Path to the mimic template directory.  
+  * `--fix`  
+    * **Type**: `{escape,clear}` (defaults to `escape`)  
+    * **Description**: Automatically fix mimic template issues by either escaping or clearing undefined variables.  
 
 #### `mimic preview`
 * **Description**: Preview your mimic template.  
