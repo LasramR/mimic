@@ -18,7 +18,7 @@ def init(options : MimicOptions) -> bool:
 
   with open(mimic_config_file_path, "w") as fd:
     fd.write("""{
-  "$schema": "https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.schema.json",
+  "$schema": "https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.0.5.0.schema.json",
   "git": {
     "enabled": false
   },

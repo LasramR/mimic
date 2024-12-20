@@ -121,7 +121,7 @@ class MimicConfigIssue:
     self.reason = reason
 
 def is_mimic_config_file_data_valid(mimic_config_file_path : str) -> List[MimicConfigIssue]:
-  with open(join(dirname(__file__), "..", "..", "..", ".mimic.schema.json"), "r") as fd:
+  with open(join(dirname(__file__), "..", "..", "..", ".mimic.0.5.0.schema.json"), "r") as fd:
     schema = load(fd)
 
   try:
@@ -141,7 +141,7 @@ def is_mimic_config_file_data_valid(mimic_config_file_path : str) -> List[MimicC
 
 def load_mimic_config(mimic_config_file_path : str) -> Union[MimicConfig, None]:
   try:
-    with open(join(dirname(__file__), "..", "..", "..", ".mimic.schema.json"), "r") as fd:
+    with open(join(dirname(__file__), "..", "..", "..", ".mimic.0.5.0.schema.json"), "r") as fd:
       schema = load(fd)
 
     with open(mimic_config_file_path, "r") as fd:
