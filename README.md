@@ -89,7 +89,7 @@ Install Python (if not already installed):
 * download and install the latest release of Python from [python.org](https://www.python.org/downloads/windows/)
 
 Install mimic (through powershell):
-```bash
+```ps1
 Set-ExecutionPolicy Bypass -scope Process -Force;
 git clone https://github.com/LasramR/mimic.git "$($env:USERPROFILE)\\.mimic"; 
 powershell "$($env:USERPROFILE)\\.mimic\\scripts\\install.ps1";
@@ -606,7 +606,8 @@ To uninstall mimic simply run :
 
 To uninstall mimic simply run :
 
-```bash
+```ps1
+Set-ExecutionPolicy Bypass -scope Process -Force;
 "$($env:USERPROFILE)\\.mimic\\scripts\\uninstall.ps1"
 ```
 

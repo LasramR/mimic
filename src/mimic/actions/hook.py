@@ -1,5 +1,4 @@
 from subprocess import Popen, PIPE
-from sys import stdout
 from threading import Thread
 from typing import IO, Dict, Any
 
