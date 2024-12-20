@@ -54,8 +54,6 @@ def clone(options : MimicOptions) -> bool :
   if not cloning.check_access_to_mimic_template(mimic_uri):
     raise Exception(f'could not resolve mimic {mimic_uri}. Are you sure that you have access to the mimic ?')
 
-  options["logger"].success(f"ok")
-
   mimic_template_dir = options["command"].get("out_dir") or abspath(git.repository_name(mimic_uri))
 
   if exists(mimic_template_dir):
@@ -108,4 +106,5 @@ def clone(options : MimicOptions) -> bool :
       options["logger"].error(f'"post_template_injection" hooks failed')
       return False
 
+  options["logger"].success(f"successfully cloned mimic template in {options["command"]["out_dir"]}")
   return True

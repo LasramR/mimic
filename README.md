@@ -1,5 +1,9 @@
 # Mimic
 
+<p align="center">
+  <img src="./doc/mimic.gif" alt="Mimic preview" style="min-width: 50%; height: auto;">
+</p>
+
 Mimic is a CLI tool that allows you to easily create project templates (**mimic templates**) and clone them, prompting for variables and running hooks to generate your project (a **mimic**).
 
 Mimic templates are primarily git-based (ie stored in a git repository), but they can also be stored in a local folder.
