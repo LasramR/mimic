@@ -13,14 +13,6 @@ class MimicGitConfig:
     
     self.enabled = validated_raw.get("enabled", False)
     self.main_branch = validated_raw.get("main_branch", "main")
-  
-  def toJSON(self) -> Dict[str, Any] :
-    jsoned = {}
-
-    jsoned["enabled"] = self.enabled
-    jsoned["main_branch"] = self.main_branch
-
-    return jsoned
 
 MimicVariableTypeType = Literal["string", "number", "boolean", "regex", "choice"]
 
@@ -70,23 +62,6 @@ class MimicVariable:
       "default": default
     })
   
-  def toJSON(self) -> Dict[str, Any]:
-    jsoned = {}
-
-    jsoned["type"] = self.type
-    jsoned["required"] = self.required
-    
-    if self.description != None:
-      jsoned["description"] = self.description
-    
-    if self.item != None:
-      jsoned["item"] = self.item
-
-    if self.default != None:
-      jsoned["default"] = self.default
-
-    return jsoned
-
 class MimicTemplateConfig:
   ignorePatterns: List[str]
   variables: Dict[str, MimicVariable]
@@ -101,17 +76,6 @@ class MimicTemplateConfig:
     if raw_variables := validated_raw.get("variables"):
       for v in raw_variables.keys():
         self.variables[v] = MimicVariable(v, raw_variables[v])
-
-  def toJSON(self) -> Dict[str, Any]:
-    jsoned = {}
-    
-    jsoned["ignorePatterns"] = self.ignorePatterns
-    
-    jsoned["variables"] = {}
-    for v in self.variables.keys():
-      jsoned["variables"][v] = self.variables[v].toJSON()
-
-    return jsoned
 
 MimicHookWhenType = Literal["pre_template_injection", "post_template_injection"]
 
@@ -132,43 +96,24 @@ class MimicHookConfig:
     self.ignore_error = validated_raw.get("ignore_error", False)
     self.ignore_user_skip = validated_raw.get("ignore_user_skip", False)
   
-  def toJSON(self) -> Dict[str, Any]:
-    jsoned = {}
-
-    if self.name != None:
-      jsoned["name"] = self.name
-
-    jsoned["when"] = self.when
-    jsoned["steps"] = self.steps
-    jsoned["ignore_error"] = self.ignore_error
-    jsoned["ignore_user_skip"] = self.ignore_user_skip
-
-    return jsoned
-
 class MimicConfig:
+  validated_raw: Dict[str, Any]
   git: MimicGitConfig
   template: MimicTemplateConfig
-  hooks: List[MimicHookConfig] = []
+  hooks: List[MimicHookConfig]
 
   def __init__(self, validated_raw : Dict[str, Any]):
+    self.validated_raw = validated_raw
+
     self.git = MimicGitConfig(validated_raw.get("git", None))
     self.template = MimicTemplateConfig(validated_raw.get("template", None))
+    self.hooks = []
     if raw_hooks := validated_raw.get("hooks"):
       for h in raw_hooks:
         self.hooks.append(MimicHookConfig(h))
 
   def get_hooks_when(self, when : MimicHookWhenType) -> List[MimicHookConfig]:
     return list(filter(lambda h: h.when == when, self.hooks))
-
-  def toJSON(self) -> Dict[str, Any]:
-    return {
-      "$schema": "https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.schema.json",
-      "git": self.git.toJSON(),
-      "template": self.template.toJSON(),
-      "hooks": [
-        h.toJSON() for h in self.hooks
-      ]
-    }
 
 class MimicConfigIssue:
   property: str
@@ -212,7 +157,7 @@ def load_mimic_config(mimic_config_file_path : str) -> Union[MimicConfig, None]:
 def overwrite_mimic_config(mimic_config_file_path : str, mimic_config : MimicConfig) -> bool:
   try:
     with open(mimic_config_file_path, "w") as fd:
-      dump(mimic_config.toJSON(), fd, indent=2)
+      dump(mimic_config.validated_raw, fd, indent=2)
       return True
   except:
     return False
