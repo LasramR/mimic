@@ -1,16 +1,17 @@
 from __future__ import annotations
-from typing import TypedDict, Union, Literal, Dict
+from colorama import Fore
+from typing import TypedDict, Union, Literal
 
 Color = Literal["RED", "BLUE", "GREEN", "YELLOW", "WHITE", "BLACK", "MAGENTA", "CYAN"]
-ColorTable: Dict[Color, str] = {
-    "RED": "\033[31m",
-    "BLUE": "\033[34m",
-    "GREEN": "\033[32m",
-    "YELLOW": "\033[33m",
-    "WHITE": "\033[37m",
-    "BLACK": "\033[30m",
-    "MAGENTA": "\033[35m",
-    "CYAN": "\033[36m",
+ColorTable = {
+    "RED": Fore.RED,
+    "BLUE": Fore.BLUE,
+    "GREEN": Fore.GREEN,
+    "YELLOW": Fore.YELLOW,
+    "WHITE": Fore.WHITE,
+    "BLACK": Fore.BLACK,
+    "MAGENTA": Fore.MAGENTA,
+    "CYAN": Fore.CYAN,
 }
 ColorReset = "\033[0m"
 
