@@ -70,7 +70,7 @@ sudo apt update && sudo apt install python3 python3-venv
 
 Install mimic:
 ```bash
-git clone https://github.com/LasramR/mimic.git ~/.mimic && ~/.mimic/scripts/install.sh
+git clone https://github.com/LasramR/mimic.git -b "v0.5.0" ~/.mimic && ~/.mimic/scripts/install.sh
 ```
 
 Open a new shell session and running `mimic -h` should output:
@@ -94,7 +94,7 @@ Install Python (if not already installed):
 
 Install mimic (through powershell):
 ```ps1
-Set-ExecutionPolicy Bypass -scope Process -Force; git clone https://github.com/LasramR/mimic.git "$($env:USERPROFILE)\\.mimic"; powershell "$($env:USERPROFILE)\\.mimic\\scripts\\install.ps1";
+Set-ExecutionPolicy Bypass -scope Process -Force; git clone https://github.com/LasramR/mimic.git -b "v0.5.0" "$($env:USERPROFILE)\\.mimic"; powershell "$($env:USERPROFILE)\\.mimic\\scripts\\install.ps1";
 ```
 
 Open a new powershell session and running `mimic -h` should output:
