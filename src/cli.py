@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from signal import SIGINT, signal
+from colorama import just_fix_windows_console
 
 from mimic.cmd.alias import alias
 from mimic.cmd.clone import clone
@@ -9,6 +10,8 @@ from mimic.cmd.preview import preview
 from mimic.options import NewMimicCloneOptions, NewMimicInitOptions, NewMimicLintOptions, NewMimicOptions, NewMimicAliasOptions, NewMimicAliasAction, NewMimicPreviewOptions
 
 def main():
+  just_fix_windows_console()
+  
   signal(SIGINT, lambda _a, _b: print() or exit(-1))
   arg_parser = ArgumentParser(prog="mimic")
 
