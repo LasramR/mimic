@@ -614,11 +614,14 @@ Set-ExecutionPolicy Bypass -scope Process -Force; powershell "$($env:USERPROFILE
 
 ## [Roadmap](#roadmap)
 
-### Planned for mimic 1.0.0
+### Planned for mimic 1.0.0 (intermediate versions will be created as new features are added)
 
 * Simple conditionnal rendering (For loops and other advanced mecanism are not planned)
 * Conditionnal hooks
 * Mimic Bank (ie, one git repository / folder = multiple mimic templates)
+* Ability to clone specific files / paths (ie cloning a specific mimic template from a bank)
+* Cloning a mimic template in a non empty folder
+* Adding more types such as ranges, dates, and item qualifier (eg decimal for number)...
 
 ### If God wants it
 
