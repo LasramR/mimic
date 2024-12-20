@@ -1,13 +1,16 @@
 from shutil import rmtree
-from os import sep
+from os import sep, environ
 from os.path import basename
 from subprocess import run, PIPE
 from typing import Union  
 
 def repository_exists(repository_uri : str) -> bool :
+  env = environ.copy()
+  env["GIT_ASKPASS"] = "echo"
+
   return run(
     ["git", "ls-remote", repository_uri],
-    env={"GIT_ASKPASS": "echo"},
+    env=env,
     stdout=PIPE,
     stderr=PIPE
   ).returncode == 0
@@ -16,9 +19,12 @@ def repository_name(repository_uri : str) -> bool :
   return basename(repository_uri).removesuffix(".git")  
 
 def clone_repository(repository_uri : str, out_dir : str) -> bool :
+  env = environ.copy()
+  env["GIT_ASKPASS"] = "echo"
+
   return run(
     ["git", "clone", repository_uri, out_dir],
-    env={"GIT_ASKPASS": "echo"},
+    env=env,
     stdout=PIPE,
     stderr=PIPE
   ).returncode == 0
