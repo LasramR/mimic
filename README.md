@@ -90,7 +90,7 @@ Install Python (if not already installed):
 
 Install mimic (through powershell):
 ```ps1
-Set-ExecutionPolicy Bypass -scope Process -Force; git clone https://github.com/LasramR/mimic.git "$($env:USERPROFILE)\\.mimic"; powershell "$($env:USERPROFILE)\\.mimic\\scripts\\install.ps1";;
+Set-ExecutionPolicy Bypass -scope Process -Force; git clone https://github.com/LasramR/mimic.git "$($env:USERPROFILE)\\.mimic"; powershell "$($env:USERPROFILE)\\.mimic\\scripts\\install.ps1";
 ```
 
 Open a new powershell session and running `mimic -h` should output:

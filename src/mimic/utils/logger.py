@@ -1,4 +1,5 @@
 from __future__ import annotations
+from os import name as os_name
 from colorama import Fore
 from typing import TypedDict, Union, Literal
 
@@ -10,7 +11,7 @@ ColorTable = {
     "YELLOW": Fore.YELLOW,
     "WHITE": Fore.WHITE,
     "BLACK": Fore.BLACK,
-    "MAGENTA": Fore.MAGENTA,
+    "MAGENTA": Fore.MAGENTA if os_name != "nt" else "\033[95m",
     "CYAN": Fore.CYAN,
 }
 ColorReset = "\033[0m"
