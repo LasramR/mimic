@@ -45,8 +45,8 @@ However, it's important to note that Mimic is specifically designed for template
 1. [Command line options](#command-line-options)
 1. [.mimic.json schema references](#mimicjson-schema-references)
 1. [Uninstall mimic](#uninstall-mimic)
-    1. [Ubuntu, Debian](#uninstall-ubuntu-debian)
-    1. [Windows](#uninstall-windows)
+    1. [Ubuntu, Debian](#uubuntu-debian)
+    1. [Windows](#uwindows)
 1. [Roadmap](#roadmap)
 
 ## [Installation](#installation)
@@ -592,9 +592,9 @@ The `.mimic.0.5.0.schema.json` provides a complete reference for the structure a
 #### Additional Properties
 * **Note**: no additional undefined properties are allowed throughout the schema to enforce strict validation.
 
-## [Uninstall mimic](#uninstall-mimic)
+### [Uninstall mimic](#uninstall-mimic)
 
-### [Ubuntu, Debian](#uninstall-ubuntu-debian)
+### [Ubuntu, Debian](#uubuntu-debian)
 
 To uninstall mimic simply run :
 
@@ -602,7 +602,7 @@ To uninstall mimic simply run :
 ~/.mimic/scripts/uninstall.sh
 ```
 
-### [Windows](#uninstall-windows)
+## [Windows](#uwindows)
 
 To uninstall mimic simply run :
 
