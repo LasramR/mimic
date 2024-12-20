@@ -63,8 +63,8 @@ class MimicVariable:
     })
   
 class MimicTemplateConfig:
-  ignorePatterns: List[str]
-  variables: Dict[str, MimicVariable]
+  ignorePatterns: List[str] = []
+  variables: Dict[str, MimicVariable] = {}
 
   def __init__(self, validated_raw : Union[Dict[str, Any], None]):
     if validated_raw == None:
@@ -72,11 +72,11 @@ class MimicTemplateConfig:
     
     self.ignorePatterns = validated_raw.get("ignorePatterns", [])
 
-    self.variables = {}
-    if raw_variables := validated_raw.get("variables"):
+    if raw_variables := validated_raw.get("variables", {}):
       for v in raw_variables.keys():
         self.variables[v] = MimicVariable(v, raw_variables[v])
 
+MimicHookWhen = ["pre_template_injection", "post_template_injection"] 
 MimicHookWhenType = Literal["pre_template_injection", "post_template_injection"]
 
 class MimicHookConfig:
@@ -86,10 +86,7 @@ class MimicHookConfig:
   ignore_error: bool
   ignore_user_skip: bool
 
-  def __init__(self, validated_raw : Union[Dict[str, Any], None]):
-    if validated_raw == None:
-      return
-    
+  def __init__(self, validated_raw : Dict[str, Any]):
     self.name = validated_raw.get("name")
     self.when = validated_raw["when"]
     self.steps = validated_raw["steps"]

@@ -31,18 +31,15 @@ def preview(options : MimicOptions) -> bool:
 
   options["logger"].success(f"mimic_template preview generated")
 
-  if len(mimic_template_preview.directory_preview.keys()):
-    options["logger"].info(f"directory change(s) ({len(mimic_template_preview.directory_preview.keys())})")
+  options["logger"].info(f"directory change(s) ({len(mimic_template_preview.directory_preview.keys())})")
   for k in mimic_template_preview.directory_preview.keys():
     print(f"{ColorTable['RED']}{k}{ColorReset} -> {ColorTable['GREEN']}{mimic_template_preview.directory_preview[k]}")
 
-  if len(mimic_template_preview.file_preview.keys()):
-    options["logger"].info(f"file change(s) ({len(mimic_template_preview.file_preview.keys())})")
+  options["logger"].info(f"file change(s) ({len(mimic_template_preview.file_preview.keys())})")
   for k in mimic_template_preview.file_preview.keys():
     print(f"{ColorTable['RED']}{k}{ColorReset} -> {ColorTable['GREEN']}{mimic_template_preview.file_preview[k]}")
 
-  if len(mimic_template_preview.file_content_preview.keys()):
-    options["logger"].info(f"content change(s) ({sum([len(mimic_template_preview.file_content_preview[k]) for k in mimic_template_preview.file_content_preview.keys()])})")
+  options["logger"].info(f"content change(s) ({sum([len(mimic_template_preview.file_content_preview[k]) for k in mimic_template_preview.file_content_preview.keys()])})")
 
   for k in mimic_template_preview.file_content_preview.keys():
     for c in mimic_template_preview.file_content_preview[k]:
@@ -50,4 +47,17 @@ def preview(options : MimicOptions) -> bool:
       print(f"{ColorTable["RED"]}- {c.raw}{ColorReset}")
       print(f"{ColorTable["GREEN"]}- {c.parsed}{ColorReset}")
 
-  # TODO add hook preview
+  for when in config.MimicHookWhen:
+    hooks = mimic_config.get_hooks_when(when)
+    options["logger"].info(f"\"{when}\" hook(s) that will trigger ({len(hooks)})")
+    for i in range(len(hooks)):
+      h = hooks[i]
+      print(f"{ColorTable['GREEN']}{h.name or f'<unnamed hook {i}>'}:{ColorReset}")
+      print(f"{ColorTable['GREEN']}{len(h.steps)} step(s){ColorReset}")
+      for s in h.steps:
+        print(f"{ColorTable["MAGENTA"]}\t- {s}{ColorReset}")
+      if not h.ignore_error:
+        print(f"{ColorTable['RED']}will fail if an error occurs{ColorReset}")
+      if not h.ignore_user_skip:
+        print(f"{ColorTable['RED']}will fail if user skip{ColorReset}")
+

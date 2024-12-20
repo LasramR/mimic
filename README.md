@@ -573,7 +573,6 @@ The `.mimic.schema.json` provides a complete reference for the structure and pro
 
 ### Planned for mimic 0.5.0
 
-* mimic lint fix get reason for why it failed
 * mimic preview display hooks that will be triggered
 * Better choice prompt
 

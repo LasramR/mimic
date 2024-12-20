@@ -12,7 +12,8 @@ def _run_hooks(mimic_template_dir : str, when : config.MimicHookWhenType, variab
   hooks = mimic_config.get_hooks_when(when)
   options["logger"].info(f"running '{when}' hooks ({len(hooks)})")
 
-  for h in hooks:
+  for i in range(len(hooks)):
+    h = hooks[i]
     hook_properties = []
     if h.ignore_user_skip:
       hook_properties.append("skippable")
@@ -20,20 +21,21 @@ def _run_hooks(mimic_template_dir : str, when : config.MimicHookWhenType, variab
       hook_properties.append("error non fatal")
     hook_properties_log = f"({','.join(hook_properties)})" if len(hook_properties) else ''
 
-    options["logger"].info(f"hook '{h.name or '<unnamed hook>'}'{hook_properties_log}")
+    h_name = h.name or f"<unnamed hook {i}>"
+    options["logger"].info(f"hook '{h_name}'{hook_properties_log}")
 
     hook_result = True
     try:
       hook_result = hook_action(mimic_template_dir, h, variables, variables_values, options["command"]["unsafe_mode"])
     except Exception:
       if h.ignore_user_skip:
-        options["logger"].warn(f"hook '{h.name or '<unnamed hook>'}' skipped")
+        options["logger"].warn(f"hook '{h_name}' skipped")
       else:
         return False
 
     if not hook_result:
       if h.ignore_error:
-        options["logger"].warn(f"hook '{h.name or '<unnamed hook>'}' failed but non fatal")
+        options["logger"].warn(f"hook '{h_name}' failed but non fatal")
       else:
         return False
   return True
