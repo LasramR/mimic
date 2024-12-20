@@ -7,7 +7,7 @@ if (Get-Command py -ErrorAction SilentlyContinue) {
     exit 1
 }
 
-$PythonCmd -m venv "$($env:USERPROFILE)\\.mimic\\.venv"
+& $PythonCmd -m venv "$($env:USERPROFILE)\\.mimic\\.venv"
 "$($env:USERPROFILE)\\.mimic\\.venv\\Scripts\\activate"
 pip install pipx
 pipx install -e "$($env:USERPROFILE)\\.mimic"
