@@ -75,7 +75,7 @@ def clone(options : MimicOptions) -> bool :
   mimic_config = config.load_mimic_config(mimic_config_file_path)
 
   if mimic_config == None:
-    raise Exception("cloud not apply post clone instruction because of broken mimic config (see https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.0.5.0.schema.json)")
+    raise Exception("cloud not apply post clone instruction because of broken mimic config (see https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.0.5.1.schema.json)")
   
   fs.remove_ignore(mimic_config_file_path)
 

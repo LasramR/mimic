@@ -19,7 +19,7 @@ def preview(options : MimicOptions) -> bool:
   mimic_config = config.load_mimic_config(mimic_config_file_path)
 
   if mimic_config == None:
-    raise Exception(f"cloud not preview mimic template because of broken mimic config (see https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.0.5.0.schema.json)")
+    raise Exception(f"cloud not preview mimic template because of broken mimic config (see https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.0.5.1.schema.json)")
   
   options["logger"].info(f"previewing mimic_template {mimic_template_dir}")
   variables = {}

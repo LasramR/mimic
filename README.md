@@ -72,7 +72,7 @@ sudo apt update && sudo apt install python3 python3-venv
 
 Install mimic:
 ```bash
-git clone https://github.com/LasramR/mimic.git -b "v0.5.0" ~/.mimic && ~/.mimic/scripts/install.sh
+git clone https://github.com/LasramR/mimic.git -b "v0.5.1" ~/.mimic && ~/.mimic/scripts/install.sh
 ```
 
 Open a new shell session and running `mimic -h` should output:
@@ -96,7 +96,7 @@ Install Python (if not already installed):
 
 Install mimic (through powershell):
 ```ps1
-Set-ExecutionPolicy Bypass -scope Process -Force; git clone https://github.com/LasramR/mimic.git -b "v0.5.0" "$($env:USERPROFILE)\\.mimic"; powershell "$($env:USERPROFILE)\\.mimic\\scripts\\install.ps1";
+Set-ExecutionPolicy Bypass -scope Process -Force; git clone https://github.com/LasramR/mimic.git -b "v0.5.1" "$($env:USERPROFILE)\\.mimic"; powershell "$($env:USERPROFILE)\\.mimic\\scripts\\install.ps1";
 ```
 
 Open a new powershell session and running `mimic -h` should output:
@@ -143,7 +143,7 @@ In the `.mimic.json` file, add an object (`{ ... }`) property with the name of y
 ```jsonc
 // .mimic.json
 {
-  "$schema": "https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.0.5.0.schema.json",
+  "$schema": "https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.0.5.1.schema.json",
   ...
   "template": {
     "variables": {
@@ -192,7 +192,7 @@ src/lib/{{ <Your variable >}}/
 
 ```jsonc
 // .mimic.json
-  "$schema": "https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.0.5.0.schema.json",
+  "$schema": "https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.0.5.1.schema.json",
   ...
   "hooks": [
     {
@@ -244,7 +244,7 @@ In the `.mimic.json` file, add an object (`{ ... }`) in the "hooks" array. For e
 ```jsonc
 // .mimic.json
 {
-  "$schema": "https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.0.5.0.schema.json",
+  "$schema": "https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.0.5.1.schema.json",
   ...
   "hooks": [
     { ... } // <- this is your new hook 
@@ -515,11 +515,11 @@ These are the command-line options available in Mimic. You can get detailed help
 
 ## [.mimic.json schema references](#mimicjson-schema-references)
 
-The `.mimic.0.5.0.schema.json` provides a complete reference for the structure and properties of the `.mimic.json` configuration file. The `.mimic.json` is the core of mimic which define your mimic template and the behaviour of mimic CLI when cloning your template.
+The `.mimic.0.5.1.schema.json` provides a complete reference for the structure and properties of the `.mimic.json` configuration file. The `.mimic.json` is the core of mimic which define your mimic template and the behaviour of mimic CLI when cloning your template.
 
 #### `$schema`
 * **Description**: Specifies the schema file to validate against.  
-* **Note**: This property **MUST** be set to `https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.0.5.0.schema.json` for proper validation and autocompletion in your IDE.
+* **Note**: This property **MUST** be set to `https://raw.githubusercontent.com/LasramR/mimic/refs/heads/main/.mimic.0.5.1.schema.json` for proper validation and autocompletion in your IDE.
 
 #### `git`
 * **Type**: `object`  
